@@ -19,9 +19,9 @@ def create_tables():
     curs = conn.cursor()
     curs.execute('''CREATE TABLE IF NOT EXISTS Users(
                       id serial primary key,
-                      username TEXT,
+                      username TEXT UNIQUE,
                       pass_hash TEXT,
-                      city TEXT
+                      region TEXT
                     );
                     
                     CREATE TABLE IF NOT EXISTS Gallerys(
@@ -69,19 +69,19 @@ def create_tables():
     conn.commit()
     curs.execute('SELECT column_name FROM information_schema.columns WHERE table_name = \'users\'')
     resp = curs.fetchall()
-    if 'gallery_id' not in resp:
+    if ('gallery_id',) not in resp:
         curs.execute('ALTER TABLE Users ADD COLUMN '
                      'gallery_id INTEGER REFERENCES Gallerys(id);')
         conn.commit()
-    curs.execute('SELECT column_name FROM information_schema.columns WHERE table_name = \'Metadatas\'')
+    curs.execute('SELECT column_name FROM information_schema.columns WHERE table_name = \'medias\'')
     resp = curs.fetchall()
-    if 'gallery_id' not in resp:
+    if ('metadata_id',) not in resp:
         curs.execute('ALTER TABLE Medias ADD COLUMN '
                      'metadata_id INTEGER REFERENCES Metadatas(id);')
         conn.commit()
-    curs.execute('SELECT column_name FROM information_schema.columns WHERE table_name = \'Medias\'')
+    curs.execute('SELECT column_name FROM information_schema.columns WHERE table_name = \'users\'')
     resp = curs.fetchall()
-    if 'gallery_id' not in resp:
+    if ('avatar_id',) not in resp:
         curs.execute('ALTER TABLE Users ADD COLUMN '
                      'avatar_id INTEGER REFERENCES Medias(id);')
         conn.commit()
@@ -97,7 +97,7 @@ def get_user(username):
     curs = conn.cursor()
     curs.execute(f'SELECT row_to_json(Users) FROM Users WHERE username = \'{username}\'')
     resp = curs.fetchall()
-    if resp == []:
+    if resp != []:
         return resp[0][0]
     else:
         return False
@@ -130,7 +130,7 @@ def check_token(token):
 def get_usernames_db():
     curs = conn.cursor()
     curs.execute('SELECT username FROM Users')
-    resp = curs.fetchall()
+    resp = [i[0] for i in curs.fetchall()]
     return resp
 
 
@@ -138,19 +138,25 @@ def check_entrance(username, password):
     if username in get_usernames_db():
         user = get_user(username)
         if checkpw(bytes(password, encoding='UTF-8'), bytes(user['pass_hash'], encoding='UTF-8')):
-            return {'token': generate_token(user['id'], username, user['pass_hash'])}
+            return generate_token(user['id'], username, user['pass_hash'])
         else:
             return False
     else:
         return False
 
+
 def add_user(username, password, region):
     if username not in get_usernames_db():
         curs = conn.cursor()
-        curs.execute(f'INSERT INTO Users(username, password, region) VALUES(\'{username}\', \'{hashpw(bytes(password, encoding="UTF-8"), salt)}\', \'{region}\')')
+        curs.execute(f'INSERT INTO Users(username, pass_hash, region) VALUES(\'{username}\', \'{str(hashpw(bytes(password, encoding="UTF-8"), salt))[2:-1]}\', \'{region}\')')
+        conn.commit()
+        curs.execute(f'INSERT INTO Gallerys DEFAULT VALUES RETURNING id')
+        conn.commit()
+        resp = curs.fetchall()[0][0]
+        curs.execute(f'UPDATE Users SET gallery_id = {resp} WHERE username = \'{username}\'')
         conn.commit()
         curs.execute(f'SELECT row_to_json(Users) FROM Users WHERE username = \'{username}\'')
-        resp = curs.fetchall()
+        resp = curs.fetchall()[0][0]
         return generate_token(resp['id'], username, resp['pass_hash'])
     else:
         return False
