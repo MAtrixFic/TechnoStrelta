@@ -1,5 +1,5 @@
 import psycopg2
-import dotenv
+# import dotenv
 import os
 from bcrypt import checkpw, hashpw
 from extension import salt
@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from extension import app
 
 
-dotenv.load_dotenv()
+# dotenv.load_dotenv()
 
 
 conn = psycopg2.connect(database=os.getenv('PG_DATABASE'), user=os.getenv('PG_USERNAME'),
@@ -97,6 +97,7 @@ def get_user(username):
     curs = conn.cursor()
     curs.execute(f'SELECT row_to_json(Users) FROM Users WHERE username = \'{username}\'')
     resp = curs.fetchall()
+    curs.close()
     if resp != []:
         return resp[0][0]
     else:
@@ -131,6 +132,7 @@ def get_usernames_db():
     curs = conn.cursor()
     curs.execute('SELECT username FROM Users')
     resp = [i[0] for i in curs.fetchall()]
+    curs.close()
     return resp
 
 
@@ -157,6 +159,7 @@ def add_user(username, password, region):
         conn.commit()
         curs.execute(f'SELECT row_to_json(Users) FROM Users WHERE username = \'{username}\'')
         resp = curs.fetchall()[0][0]
+        curs.close()
         return generate_token(resp['id'], username, resp['pass_hash'])
     else:
         return False
