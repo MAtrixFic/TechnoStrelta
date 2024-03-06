@@ -2,8 +2,11 @@ import os
 from extension import app
 from flask import jsonify,make_response, session, request
 from db_reqs import *
+# from dotenv import load_dotenv
 
+# load_dotenv()
 create_tables()
+
 
 @app.route('/api/auth/entrance', methods=['POST'])
 def auth_login():
