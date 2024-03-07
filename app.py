@@ -1,10 +1,9 @@
 import os
-from extension import app
-from flask import jsonify,make_response, session, request
+from extension import app, pg_host
+from flask import jsonify, make_response, session, request
+from dotenv import load_dotenv
+load_dotenv()
 from db_reqs import *
-# from dotenv import load_dotenv
-
-# load_dotenv()
 create_tables()
 
 

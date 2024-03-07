@@ -1,5 +1,5 @@
 import psycopg2
-# import dotenv
+import dotenv
 import os
 from bcrypt import checkpw, hashpw
 from extension import salt
@@ -8,11 +8,15 @@ from datetime import datetime, timedelta
 from extension import app
 
 
-# dotenv.load_dotenv()
+dotenv.load_dotenv()
 
 
+if os.getenv('huynya'):
+    pg_host = 'localhost'
+else:
+    pg_host = 'postgres'
 conn = psycopg2.connect(database=os.getenv('PG_DATABASE'), user=os.getenv('PG_USERNAME'),
-                        password=os.getenv('PG_PASSWORD'), host=os.getenv('PG_HOST'),
+                        password=os.getenv('PG_PASSWORD'), host=pg_host,
                         port=os.getenv('PG_PORT'))
 
 def create_tables():
