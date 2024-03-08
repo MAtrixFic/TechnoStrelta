@@ -10,7 +10,7 @@ from extension import app
 
 dotenv.load_dotenv()
 
-
+# print(os.getenv('PG_DATABASE'), os.getenv('PG_USERNAME'), os.getenv('PG_PASSWORD'), os.getenv('PG_PORT'))
 if os.getenv('huynya'):
     pg_host = 'localhost'
 else:
