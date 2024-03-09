@@ -6,6 +6,8 @@ from extension import salt
 from jwt import encode, decode
 from datetime import datetime, timedelta
 from extension import app
+from random import randint, seed
+import smtplib
 
 
 dotenv.load_dotenv()
@@ -24,6 +26,7 @@ def create_tables():
     curs.execute('''CREATE TABLE IF NOT EXISTS Users(
                       id serial primary key,
                       username TEXT UNIQUE,
+                      email TEXT UNIQUE,
                       pass_hash TEXT,
                       region TEXT
                     );
@@ -69,7 +72,15 @@ def create_tables():
                       id serial primary key,
                       gallery_id INTEGER REFERENCES Gallerys(id),
                       media_id INTEGER REFERENCES Medias(id)
-                    );''')
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS UsersCodes(
+                      id serial primary key, 
+                      user_id INTEGER REFERENCES Users(id),
+                      confirmation_code INTEGER,
+                      created_at TEXT
+                    );
+                    ''')
     conn.commit()
     curs.execute('SELECT column_name FROM information_schema.columns WHERE table_name = \'users\'')
     resp = curs.fetchall()
@@ -125,7 +136,7 @@ def check_token(token):
         pass_hash = decoded_token['pass_hash']
         if (datetime.utcnow() <= datetime.fromisoformat(decoded_token['expiration'])
                 and get_user(username)['pass_hash'] == pass_hash):
-            return True
+            return decoded_token
         else:
             return False
     except:
@@ -151,10 +162,10 @@ def check_entrance(username, password):
         return False
 
 
-def add_user(username, password, region):
+def add_user(username, password, region, mail):
     if username not in get_usernames_db():
         curs = conn.cursor()
-        curs.execute(f'INSERT INTO Users(username, pass_hash, region) VALUES(\'{username}\', \'{str(hashpw(bytes(password, encoding="UTF-8"), salt))[2:-1]}\', \'{region}\')')
+        curs.execute(f'INSERT INTO Users(username, pass_hash, region, email) VALUES(\'{username}\', \'{str(hashpw(bytes(password, encoding="UTF-8"), salt))[2:-1]}\', \'{region}\', \'{mail}\')')
         conn.commit()
         curs.execute(f'INSERT INTO Gallerys DEFAULT VALUES RETURNING id')
         conn.commit()
@@ -167,3 +178,48 @@ def add_user(username, password, region):
         return generate_token(resp['id'], username, resp['pass_hash'])
     else:
         return False
+
+
+def generate_confirmation_code(token):
+    curs = conn.cursor()
+    curs.execute(f'SELECT row_to_json(UsersCodes) FROM UsersCodes WHERE id = {token["id"]}')
+    resp = curs.fetchall()
+    seed = datetime.utcnow()
+    if resp == []:
+        curs.execute(f'INSERT INTO UsersCodes (username, confirmation_code, created_at) VALUES '
+                     f'(\'{token["username"]}\', {randint(seed)}, '
+                     f'\'{str(datetime.utcnow() + timedelta(seconds=300))}\')')
+        conn.commit()
+    else:
+        curs.execute(f'UPDATE UsersCodes SET confirmation_code = {randint(seed)}, '
+                     f'created_at = \'{str(datetime.utcnow() + timedelta(seconds=300))}\'')
+        conn.commit()
+    curs.close()
+    return True
+
+
+def check_confirmation_code(token, confirmation_code):
+    curs = conn.cursor()
+    curs.execute(f'SELECT row_to_json(UsersCodes) FROM UsersCodes WHERE username_id = {token["id"]}')
+    resp = curs.fetchall()
+    if resp['confirmation_code'] == confirmation_code and datetime.fromisoformat(resp['created_at']) < datetime.utcnow():
+        return True
+    else:
+        return False
+
+
+def send_confirm_email(token):
+    email = 'tekhno.strelka@mail.ru'
+    password = 'cCeTMHz7BTvLefbJcJ2K'
+    smtp_server = 'smtp.mail.ru'
+    smtp_port = 465
+    server = smtplib.SMTP_SSL(smtp_server, smtp_port)
+    server.login(email, password)
+    curs = conn.cursor()
+    curs.execute(f'SELECT email FROM Users WHERE username = \'{token["username"]}\'')
+    recipient = curs.fetchall()[0][0]
+    confirmation_code = generate_confirmation_code(token)
+    server.sendmail(email, recipient, f'Subject: Код подтверждения\nВаш код подтверждения:\n{confirmation_code}')
+    server.close()
+    curs.close()
+    return True
