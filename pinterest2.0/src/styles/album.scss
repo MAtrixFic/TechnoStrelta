@@ -1,0 +1,185 @@
+$blue: #006ADC;
+$lightBlue: #0D99FF;
+$dark: #11181C;
+$lightGrey: #D7DBDF;
+$red: #DC004D;
+$lightRed: #DC2666;
+$lightGreen: #0DFFBA;
+$lightPerple: #8E0DFF;
+
+@mixin shadow() {
+    -webkit-box-shadow: 0px 2px 9px 0px rgba(155, 179, 197, 0.2);
+    -moz-box-shadow: 0px 2px 9px 0px rgba(155, 179, 197, 0.2);
+    box-shadow: 0px 2px 9px 0px rgba(155, 179, 197, 0.2);
+}
+
+@mixin flex($js, $ai) {
+    display: flex;
+    justify-content: $js;
+    align-items: $ai;
+}
+
+@mixin shadowBlue() {
+    -webkit-box-shadow: 0px 0px 11px 0px rgba(0, 106, 220, 0.2);
+    -moz-box-shadow: 0px 0px 11px 0px rgba(0, 106, 220, 0.2);
+    box-shadow: 0px 0px 11px 0px rgba(0, 106, 220, 0.2);
+}
+
+.main__album {
+    padding: 3rem;
+    display: grid;
+    grid-template-rows: minmax(40px, 60px) repeat(2, 200px);
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+.album-manager {
+    display: grid;
+    grid-template-columns: 1fr minmax(300px, 400px);
+    grid-template-rows: 1fr;
+    align-items: center;
+}
+
+.album-manager__name {
+    font-size: 2rem;
+    font-weight: 500;
+    color: $dark;
+
+    span {
+        font-size: 1.2rem;
+        color: $lightGrey;
+    }
+}
+
+.album-manager__controller {
+    height: 100%;
+    background-color: white;
+    border-radius: 100px;
+    @include shadow();
+}
+
+.album-manager__media {
+    height: 100%;
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+.album-manager__media-block {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 60px 1fr;
+    gap: 1rem;
+}
+
+.album-manager__media-manipulator {
+    display: grid;
+    grid-template-columns: 1fr 60px;
+    grid-template-rows: 1fr;
+    max-width: 400px;
+    gap: 4rem;
+}
+
+.album-manager__title {
+    background-color: white;
+    border-radius: 100px;
+    color: $lightBlue;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.6rem;
+    font-weight: 600;
+    @include shadow();
+}
+
+.album-manager__media-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.album-manager__add-media {
+    border-radius: 10px;
+    @include flex(center, center);
+    border: 2px solid $lightGrey;
+    transition-duration: 0.2s;
+
+    input[type='file'] {
+        display: none;
+    }
+
+    &:hover {
+        cursor: pointer;
+        transform: scale(1.02);
+        background-color: $lightBlue;
+        border-color: $lightBlue;
+        @include shadowBlue();
+
+        svg {
+            fill: white;
+        }
+    }
+
+    svg {
+        height: 20px;
+        width: 20px;
+        transition-duration: 0.2s;
+    }
+}
+
+.album-image {
+    border-radius: 25px;
+    border: 2px solid white;
+    overflow: hidden;
+    transition-duration: 0.2s;
+    width: fit-content;
+    position: relative;
+
+    .album-image__manager-block {
+        display: none;
+    }
+
+    img {
+        height: 192px;
+        object-fit: fill;
+    }
+
+    &:hover {
+        @include shadow();
+        cursor: pointer;
+        transform: scale(1.05);
+
+        .album-image__manager-block {
+            position: absolute;
+            width: 100%;
+            min-height: 100%;
+            background-color: rgba($color: $dark, $alpha: 0.6);
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+        }
+    }
+}
+
+.album-image__btn {
+    opacity: 0.6;
+    background-color: transparent;
+    color: white;
+    font-weight: 500;
+    font-size: 1.2rem;
+    transition-duration: 0.2s;
+
+    &:hover {
+        opacity: 1;
+    }
+
+    svg {
+        width: 30px;
+        height: 30px;
+    }
+}
