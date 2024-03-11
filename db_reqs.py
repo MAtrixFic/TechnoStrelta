@@ -6,8 +6,9 @@ from extension import salt
 from jwt import encode, decode
 from datetime import datetime, timedelta
 from extension import app
-from random import randint, seed
+import random
 import smtplib
+from email.mime.text import MIMEText
 
 
 dotenv.load_dotenv()
@@ -49,8 +50,8 @@ def create_tables():
                     
                     CREATE TABLE IF NOT EXISTS Medias(
                       id serial primary key,
-                      media_type TEXT,
-                      media_bytea BYTEA,
+                      title TEXT,
+                      media_base64 TEXT,
                       tags TEXT[],
                       coordinates TEXT
                     );
@@ -162,10 +163,11 @@ def check_entrance(username, password):
         return False
 
 
-def add_user(username, password, region, mail):
+def add_user(username, password, region, mail, avatar):
     if username not in get_usernames_db():
         curs = conn.cursor()
-        curs.execute(f'INSERT INTO Users(username, pass_hash, region, email) VALUES(\'{username}\', \'{str(hashpw(bytes(password, encoding="UTF-8"), salt))[2:-1]}\', \'{region}\', \'{mail}\')')
+        avatar_id = add_avatar(avatar)
+        curs.execute(f'INSERT INTO Users(username, pass_hash, region, email, avatar_id) VALUES(\'{username}\', \'{str(hashpw(bytes(password, encoding="UTF-8"), salt))[2:-1]}\', \'{region}\', \'{mail}\', {avatar_id})')
         conn.commit()
         curs.execute(f'INSERT INTO Gallerys DEFAULT VALUES RETURNING id')
         conn.commit()
@@ -182,20 +184,24 @@ def add_user(username, password, region, mail):
 
 def generate_confirmation_code(token):
     curs = conn.cursor()
-    curs.execute(f'SELECT row_to_json(UsersCodes) FROM UsersCodes WHERE id = {token["id"]}')
+    curs.execute(f'SELECT row_to_json(UsersCodes) FROM UsersCodes WHERE user_id = {token["id"]}')
     resp = curs.fetchall()
-    seed = datetime.utcnow()
+    seed_r = datetime.utcnow()
+    random.seed = seed_r
     if resp == []:
-        curs.execute(f'INSERT INTO UsersCodes (username, confirmation_code, created_at) VALUES '
-                     f'(\'{token["username"]}\', {randint(seed)}, '
+        curs.execute(f'INSERT INTO UsersCodes (user_id, confirmation_code, created_at) VALUES '
+                     f'(\'{token["id"]}\', {random.randint(100000, 999999)}, '
                      f'\'{str(datetime.utcnow() + timedelta(seconds=300))}\')')
         conn.commit()
     else:
-        curs.execute(f'UPDATE UsersCodes SET confirmation_code = {randint(seed)}, '
-                     f'created_at = \'{str(datetime.utcnow() + timedelta(seconds=300))}\'')
+        curs.execute(f'UPDATE UsersCodes SET confirmation_code = {random.randint(100000, 999999)}, '
+                     f'created_at = \'{str(datetime.utcnow() + timedelta(seconds=300))}\' WHERE user_id = \'{token["id"]}\'')
         conn.commit()
+    curs.execute(f'SELECT confirmation_code FROM userscodes WHERE user_id = {token["id"]}')
+    code = curs.fetchall()[0][0]
     curs.close()
-    return True
+
+    return code
 
 
 def check_confirmation_code(token, confirmation_code):
@@ -219,7 +225,54 @@ def send_confirm_email(token):
     curs.execute(f'SELECT email FROM Users WHERE username = \'{token["username"]}\'')
     recipient = curs.fetchall()[0][0]
     confirmation_code = generate_confirmation_code(token)
-    server.sendmail(email, recipient, f'Subject: Код подтверждения\nВаш код подтверждения:\n{confirmation_code}')
+    msg = MIMEText(f'Subject: Код подтверждения\nВаш код подтверждения:\n{confirmation_code}', 'plain')
+    server.sendmail(email, recipient, msg.as_string())
     server.close()
     curs.close()
     return True
+
+
+def add_avatar(file):
+    curs = conn.cursor()
+    curs.execute(f'INSERT INTO Medias (media_base64) VALUES(\'{file}\') RETURNING id')
+    conn.commit()
+    resp = curs.fetchall()
+    return resp[0][0]
+
+
+def add_media_to_db(file, tags, metadata, coords, title, username_id, album_id):
+    metadata_id = add_metadata_to_db(metadata, username_id)
+    curs = conn.cursor()
+    curs.execute(f'INSERT INTO Medias (media_base64, tags, metadata_id, coordinates, title) VALUES '
+                 f'(\'{file}\', {str(tags)}, {metadata_id}, \'{coords}\', \'{title}\') RETURNING id')
+    media_id = curs.fetchall()
+    if album_id:
+        curs.execute(f'INSERT INTO AlbumMedias (album_id, media_id) VALUES ({album_id}, {media_id})')
+    else:
+
+    conn.commit()
+    return media_id
+
+
+def add_metadata_to_db(metadata, username_id):
+    curs = conn.cursor()
+    curs.execute(f'INSERT INTO Metadatas (create_timestamp, city, author_id) VALUES '
+                 f'(\'{metadata[0]}\', \'{metadata[1]}\', {username_id}) RETURNING id')
+    metadata_id = curs.fetchall()[0][0]
+    conn.commit()
+    return metadata_id
+
+
+def add_album_to_db(gallery_id, title, isPublic):
+    curs = conn.cursor()
+    curs.execute(f'INSERT INTO Albums (name, ispublic) VALUES (\'{title}\', {str(isPublic).lower()}) RETURNING id')
+    album_id = curs.fetchall()
+    conn.commit()
+    curs.execute(f'INSERT INTO GalleryAlbums (gallery_id, album_id) VALUES ({gallery_id}, {album_id})')
+    conn.commit()
+    return album_id
+
+
+def get_gallery_id(user_id):
+    curs = conn.cursor()
+    curs.execute(f'SELECT gallery_id FROM users WHERE ')

@@ -27,7 +27,8 @@ def auth_register():
     password = resp['password']
     region = resp['region']
     mail = resp['email']
-    token = add_user(username, password, region, mail)
+    avatar = resp['avatar']
+    token = add_user(username, password, region, mail, avatar)
     if token:
         return make_response({'token': token}, 200)
     else:
@@ -72,6 +73,28 @@ def check_confirm_code():
     else:
         return make_response({'reason': 'Недействительный токен'}, 403)
 
+
+@app.route('/api/media/add', methods=['POST'])
+def add_media():
+    resp = dict(request.form)
+    token = resp['token']
+    decoded_token = check_token(token)
+    if decoded_token:
+        file = resp['file']
+        title = resp['title']
+        tags = resp['tags']
+        metadata = resp['metadata']
+        coords = resp['coordinates']
+        username_id = decoded_token['id']
+        flag = resp['flag']
+        if flag:
+            album_id = resp['album_id']
+        else:
+            album_id = get_gallery_id(resp['album_id'])
+        add_media_to_db(file, tags, metadata, coords, title, username_id, album_id)
+        return 200
+    else:
+        return make_response({'reason': 'Недействительный токен'}, 403)
 
 if __name__ == '__main__':
     app.run(host=os.getenv('SERVER_HOST'), port=os.getenv('SERVER_PORT'))
