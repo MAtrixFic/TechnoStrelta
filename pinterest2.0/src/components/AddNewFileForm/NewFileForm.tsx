@@ -2,33 +2,16 @@
 import React, { useEffect, useState } from 'react'
 import '@/styles/newfile.scss'
 
-import { PinturaEditor } from '@pqina/react-pintura'
-import { getEditorDefaults } from '@pqina/pintura'
-import ai from './ai.jpg'
+import ImageEditor from '../ImageEditor/ImageEditor'
 
 const NewFileForm = () => {
     const [image, useImage] = useState<string>()
-    const [inlineResult, useInlineReult] = useState<string>();
 
-
-    useEffect(() => {
-        console.log(inlineResult)
-    }, [inlineResult])
     return (
         <div className="black-window">
             <div className="new-file-form">
-                <div className="new-file-form__downloader">
-                    {image &&
-                        <PinturaEditor
-                            src={image}
-                            {...getEditorDefaults()}
-                            imageCropAspectRatio={1}
-                            onProcess={(res) => {
-                                useInlineReult(URL.createObjectURL(res.dest))
-                            }
-                            }
-                        />}
-                    {inlineResult && <img src={inlineResult} />}
+                <div className="new-file-form__downloader" >
+                    {image && <ImageEditor width={600} image={image}/>}
                     {!image && <label className="new-file-form__load-img">
                         <input name='avatar' type="file" accept=".jpg, .jpeg, .png" onChange={event => {
                             if (event.currentTarget.files !== null) {
