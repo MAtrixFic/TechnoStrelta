@@ -9,6 +9,7 @@ from extension import app
 import random
 import smtplib
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 
 dotenv.load_dotenv()
@@ -225,8 +226,12 @@ def send_confirm_email(token):
     curs.execute(f'SELECT email FROM Users WHERE username = \'{token["username"]}\'')
     recipient = curs.fetchall()[0][0]
     confirmation_code = generate_confirmation_code(token)
-    msg = MIMEText(f'Subject: Код подтверждения\nВаш код подтверждения:\n{confirmation_code}', 'plain')
-    server.sendmail(email, recipient, msg.as_string())
+    msg = MIMEMultipart('alternative')
+    msg['Subject']  = 'Код подтверждения'
+    msg['From'] = email
+    msg['To'] = recipient
+    msg.attach(MIMEText(f'Ваш код подтверждения:\n{confirmation_code}', 'plain'))
+    server.send_message(msg)
     server.close()
     curs.close()
     return True
@@ -240,16 +245,12 @@ def add_avatar(file):
     return resp[0][0]
 
 
-def add_media_to_db(file, tags, metadata, coords, title, username_id, album_id):
+def add_media_to_db(file, tags, metadata, coords, title, username_id):
     metadata_id = add_metadata_to_db(metadata, username_id)
     curs = conn.cursor()
     curs.execute(f'INSERT INTO Medias (media_base64, tags, metadata_id, coordinates, title) VALUES '
-                 f'(\'{file}\', {str(tags)}, {metadata_id}, \'{coords}\', \'{title}\') RETURNING id')
-    media_id = curs.fetchall()
-    if album_id:
-        curs.execute(f'INSERT INTO AlbumMedias (album_id, media_id) VALUES ({album_id}, {media_id})')
-    else:
-
+                 f'(\'{file}\', ARRAY{str(tags)}, {metadata_id}, \'{coords}\', \'{title}\') RETURNING id')
+    media_id = curs.fetchall()[0][0]
     conn.commit()
     return media_id
 
@@ -257,7 +258,7 @@ def add_media_to_db(file, tags, metadata, coords, title, username_id, album_id):
 def add_metadata_to_db(metadata, username_id):
     curs = conn.cursor()
     curs.execute(f'INSERT INTO Metadatas (create_timestamp, city, author_id) VALUES '
-                 f'(\'{metadata[0]}\', \'{metadata[1]}\', {username_id}) RETURNING id')
+                 f'({metadata["create_timestamp"]}, \'{metadata["city"]}\', {username_id}) RETURNING id')
     metadata_id = curs.fetchall()[0][0]
     conn.commit()
     return metadata_id
@@ -266,13 +267,68 @@ def add_metadata_to_db(metadata, username_id):
 def add_album_to_db(gallery_id, title, isPublic):
     curs = conn.cursor()
     curs.execute(f'INSERT INTO Albums (name, ispublic) VALUES (\'{title}\', {str(isPublic).lower()}) RETURNING id')
-    album_id = curs.fetchall()
+    album_id = curs.fetchall()[0][0]
     conn.commit()
     curs.execute(f'INSERT INTO GalleryAlbums (gallery_id, album_id) VALUES ({gallery_id}, {album_id})')
     conn.commit()
     return album_id
 
 
-def get_gallery_id(user_id):
+def get_gallery_id(id):
     curs = conn.cursor()
-    curs.execute(f'SELECT gallery_id FROM users WHERE ')
+    curs.execute(f'SELECT gallery_id FROM users WHERE id = {id}')
+    resp = curs.fetchall()[0][0]
+    return resp
+
+
+def add_media_to_gallery(file, tags, metadata, coords, title, username_id, gallery_id):
+    media_id = add_media_to_db(file, tags, metadata, coords, title, username_id)
+    curs = conn.cursor()
+    curs.execute(f'INSERT INTO gallerymedias (gallery_id, media_id) VALUES ({gallery_id}, {media_id})')
+    conn.commit()
+    curs.close()
+    return True
+
+
+def add_media_to_album(file, tags, metadata, coords, title, username_id, album_id):
+    media_id = add_media_to_db(file, tags, metadata, coords, title, username_id)
+    curs = conn.cursor()
+    curs.execute(f'INSERT INTO albummedias (album_id, media_id) VALUES ({album_id}, {media_id})')
+    conn.commit()
+    curs.close()
+    return True
+
+
+def check_access_gallery(username_id, gallery_id):
+    curs = conn.cursor()
+    curs.execute(f'SELECT gallery_id FROM users WHERE id = {username_id}')
+    resp = curs.fetchall()
+    if resp[0][0] == int(gallery_id):
+        return True
+    else:
+        return False
+
+
+def check_access_album(username_id, album_id):
+    curs = conn.cursor()
+    curs.execute(f'SELECT album_id FROM galleryalbums WHERE gallery_id = (SELECT users.gallery_id from users where id = {username_id})')
+    resp1 = curs.fetchall()
+    curs.execute(f'SELECT ispublic FROM albums WHERE id = {album_id}')
+    resp2 = curs.fetchall()
+    if (int(album_id),) in resp1 or resp2[0][0]:
+        return True
+    else:
+        return False
+
+
+def add_user_to_album_db(author_id, album_id, user_id):
+    if check_access_album(author_id, album_id):
+        if not check_access_album(user_id, album_id):
+            curs = conn.cursor()
+            curs.execute(f'INSERT INTO galleryalbums (gallery_id, album_id) VALUES ((SELECT gallery_id FROM users '
+                         f'WHERE id = {user_id}), {album_id})')
+            conn.commit()
+            curs.close()
+        return True
+    else:
+        return False

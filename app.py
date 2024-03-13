@@ -6,6 +6,7 @@ load_dotenv()
 from db_reqs import *
 import smtplib
 create_tables()
+from json import loads
 
 
 @app.route('/api/auth/entrance', methods=['POST'])
@@ -54,7 +55,7 @@ def send_confirmation_code():
     decoded_token = check_token(token)
     if decoded_token:
         send_confirm_email(decoded_token)
-        return 200
+        return make_response({'status': 'Success 200'}, 200)
     else:
         return make_response({'reason': 'Недействительный токен'}, 403)
 
@@ -82,19 +83,62 @@ def add_media():
     if decoded_token:
         file = resp['file']
         title = resp['title']
-        tags = resp['tags']
-        metadata = resp['metadata']
+        tags = loads(resp['tags'])
+        metadata = loads(resp['metadata'])
         coords = resp['coordinates']
         username_id = decoded_token['id']
-        flag = resp['flag']
-        if flag:
-            album_id = resp['album_id']
+        if 'gallery_id' in resp:
+            gallery_id = resp['gallery_id']
+            if check_access_gallery(username_id, gallery_id):
+                add_media_to_gallery(file, tags, metadata, coords, title, username_id, gallery_id)
+            else:
+                return make_response({'reason': "У пользователя нет доступа к данной галерее"}, 403)
         else:
-            album_id = get_gallery_id(resp['album_id'])
-        add_media_to_db(file, tags, metadata, coords, title, username_id, album_id)
-        return 200
+            album_id = resp['album_id']
+            if check_access_album(username_id, album_id):
+                add_media_to_album(file, tags, metadata, coords, title, username_id, album_id)
+            else:
+                return make_response({'reason': "У пользователя нет доступа к данному альбому"}, 403)
+        return make_response({'status': 'Success 200'}, 200)
     else:
         return make_response({'reason': 'Недействительный токен'}, 403)
+
+
+@app.route('/api/media/createAlbum', methods=['POST'])
+def create_album():
+    resp = dict(request.form)
+    token = resp['token']
+    decoded_token = check_token(token)
+    if decoded_token:
+        username_id = resp['username_id']
+        title = resp['title']
+        isPublic = resp['isPublic']
+        if isPublic == 'true':
+            isPublic = True
+        else:
+            isPublic = False
+        add_album_to_db(username_id, title, isPublic)
+        return make_response({'status': 'Success 200'}, 201)
+    else:
+        return make_response({'reason': 'Недействительный токен'}, 403)
+
+
+@app.route('/api/media/addUserToAlbum', methods=['POST'])
+def add_user_to_album():
+    resp = dict(request.form)
+    token = resp['token']
+    decoded_token = check_token(token)
+    if decoded_token:
+        author = decoded_token['id']
+        album_id = resp['album_id']
+        user_id = resp['user_id']
+        if add_user_to_album_db(author, album_id, user_id):
+            return make_response({'status': 'Success 200'}, 200)
+        else:
+            return make_response({'reason': 'У вас нет доступа к этому альбому'}, 403)
+    else:
+        return make_response({'reason': 'Недействительный токен'}, 403)
+
 
 if __name__ == '__main__':
     app.run(host=os.getenv('SERVER_HOST'), port=os.getenv('SERVER_PORT'))
