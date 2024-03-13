@@ -1,11 +1,4 @@
-$blue: #006ADC;
-$lightBlue: #0D99FF;
-$dark: #11181C;
-$lightGrey: #D7DBDF;
-$red: #DC004D;
-$lightRed: #DC2666;
-$lightGreen: #0DFFBA;
-$lightPerple: #8E0DFF;
+@import 'empty';
 
 @mixin shadow() {
     -webkit-box-shadow: 0px 2px 9px 0px rgba(155, 179, 197, 0.2);

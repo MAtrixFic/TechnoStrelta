@@ -4,6 +4,8 @@ import React, { useState, useRef, useEffect } from 'react'
 import ButtonFuncLink from './ButtonFuncLink'
 import type { IImageEditorProps, IImagePropertiesData } from '@/types/imageeditor.type'
 import { PropertiesName } from '@/types/imageeditor.type'
+import ReactCrop from 'react-image-crop'
+import type { Crop } from 'react-image-crop'
 
 const ImageEditor = ({ image, width }: IImageEditorProps) => {
     const imageWidth = width - 25;
@@ -20,6 +22,9 @@ const ImageEditor = ({ image, width }: IImageEditorProps) => {
     const [propertyIndex, usePropertyIndex] = useState<PropertiesName>(() => PropertiesName.BRIGHTNESS)
     let sliderRef = useRef<HTMLInputElement>(null);
 
+
+    const [crop, useCrop] = useState<Crop>();
+
     function LoadImage() {
         const img = new Image();
         img.src = image;
@@ -28,6 +33,14 @@ const ImageEditor = ({ image, width }: IImageEditorProps) => {
             canvas2D!.clearRect(0, 0, width, width);
             canvas2D!.drawImage(img, ...SetImagePosAndScale(imageRatio));
         }
+    }
+
+    function RotateObject(rotation: number, canvasWidth: number, canvasHeight: number) {
+        canvas2D!.clearRect(0, 0, width, width);
+        canvas2D?.translate(canvasWidth / 2, canvasHeight / 2);
+        canvas2D?.rotate((rotation * Math.PI) / 180);
+        canvas2D?.translate(-canvasWidth / 2, -canvasHeight / 2);
+        LoadImage();
     }
 
     useEffect(() => {
@@ -52,7 +65,9 @@ const ImageEditor = ({ image, width }: IImageEditorProps) => {
 
     return (
         <div className='image-editor'>
-            {<canvas style={{ background: 'white', borderRadius: '25px' }} ref={canvasRef} />}
+            <ReactCrop crop={crop} onChange={cropEvent => useCrop(cropEvent)}>
+                {<canvas ref={canvasRef} />}
+            </ReactCrop>
             <div className="image-editor__manager">
                 <div className="image-editor__slider">
                     <span>{imageData[propertyIndex].name}</span>
@@ -68,10 +83,10 @@ const ImageEditor = ({ image, width }: IImageEditorProps) => {
                         <ButtonFuncLink key={index} title={imageData[key as PropertiesName].name} updateFunc={() => usePropertyIndex(key as PropertiesName)} />
                     )}
                     <div className="image-editor__transform">
-                        <ButtonFuncLink title='>' updateFunc={() => 'canvas2D?.'} />
+                        <ButtonFuncLink title='<' updateFunc={() => RotateObject(90, width, width)} />
                     </div>
                     <div className="image-editor__transform">
-                        <ButtonFuncLink title='<' updateFunc={() => 'canvas2D?.'} />
+                        <ButtonFuncLink title='>' updateFunc={() => RotateObject(-90, width, width)} />
                     </div>
                 </div>
             </div>

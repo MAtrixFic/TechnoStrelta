@@ -1,9 +1,4 @@
-$blue: #006ADC;
-$lightBlue: #0D99FF;
-$dark: #11181C;
-$lightGrey: #D7DBDF;
-$red: #DC004D;
-$lightRed: #DC2666;
+@import 'empty';
 
 @mixin CardType($color, $shadow) {
     border-color: $color;

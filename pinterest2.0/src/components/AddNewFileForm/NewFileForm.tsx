@@ -1,6 +1,7 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import '@/styles/newfile.scss'
+import download from '@/images/download.png'
 
 import ImageEditor from '../ImageEditor/ImageEditor'
 
@@ -13,6 +14,7 @@ const NewFileForm = () => {
                 <div className="new-file-form__downloader" >
                     {image && <ImageEditor width={600} image={image}/>}
                     {!image && <label className="new-file-form__load-img">
+                        <img src={download.src} width={200} alt="Загрузка файла" />
                         <input name='avatar' type="file" accept=".jpg, .jpeg, .png" onChange={event => {
                             if (event.currentTarget.files !== null) {
                                 const file = event.currentTarget.files[0];
