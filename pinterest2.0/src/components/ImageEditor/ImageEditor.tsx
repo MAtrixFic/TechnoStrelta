@@ -2,29 +2,8 @@
 import '@/styles/imageeditor.scss'
 import React, { useState, useRef, useEffect } from 'react'
 import ButtonFuncLink from './ButtonFuncLink'
-
-interface IImageEditorProps {
-    image: string;
-    width: number;
-}
-
-enum PropertiesName {
-    BRIGHTNESS = 'brightness',
-    CONTRAST = 'contrast'
-}
-
-interface IImageData {
-    name: string;
-    value: number;
-}
-
-interface IImagePropertiesData {
-    [PropertiesName.BRIGHTNESS]: IImageData
-    [PropertiesName.CONTRAST]: IImageData
-}
-
-
-
+import type { IImageEditorProps, IImagePropertiesData } from '@/types/imageeditor.type'
+import { PropertiesName } from '@/types/imageeditor.type'
 
 const ImageEditor = ({ image, width }: IImageEditorProps) => {
     const imageWidth = width - 25;
@@ -77,7 +56,7 @@ const ImageEditor = ({ image, width }: IImageEditorProps) => {
             <div className="image-editor__manager">
                 <div className="image-editor__slider">
                     <span>{imageData[propertyIndex].name}</span>
-                    <input type="range" ref={sliderRef} defaultValue={imageData[propertyIndex].value} min={0} max={200} onChange={event => {
+                    <input type="range" ref={sliderRef} min={0} max={200} onChange={event => {
                         useImageData({ ...imageData, [propertyIndex]: { name: imageData[propertyIndex].name, value: Number(event.target.value) } })
                         canvas2D!.filter = Object.keys(imageData).map(key => `${key}(${imageData[key as PropertiesName].value}%)`).join(' ')
                         console.log(canvas2D?.filter)
@@ -88,6 +67,12 @@ const ImageEditor = ({ image, width }: IImageEditorProps) => {
                     {Object.keys(imageData).map((key, index) =>
                         <ButtonFuncLink key={index} title={imageData[key as PropertiesName].name} updateFunc={() => usePropertyIndex(key as PropertiesName)} />
                     )}
+                    <div className="image-editor__transform">
+                        <ButtonFuncLink title='>' updateFunc={() => 'canvas2D?.'} />
+                    </div>
+                    <div className="image-editor__transform">
+                        <ButtonFuncLink title='<' updateFunc={() => 'canvas2D?.'} />
+                    </div>
                 </div>
             </div>
         </div>
