@@ -10,7 +10,8 @@ export enum PropertiesName {
     BRIGHTNESS = 'brightness',
     CONTRAST = 'contrast',
     GRAYSCALE = 'grayscale',
-    SATURATE = 'saturate'
+    SATURATE = 'saturate',
+    SEPIA = 'sepia',
 }
 
 export enum Sides {
@@ -27,5 +28,6 @@ export interface IImagePropertiesData {
     [PropertiesName.BRIGHTNESS]: IImageData
     [PropertiesName.CONTRAST]: IImageData
     [PropertiesName.GRAYSCALE]: IImageData,
-    [PropertiesName.SATURATE]: IImageData
+    [PropertiesName.SATURATE]: IImageData,
+    [PropertiesName.SEPIA]: IImageData
 }

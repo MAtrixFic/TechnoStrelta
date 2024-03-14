@@ -12,7 +12,7 @@ interface NewFileProps {
     videoFlug: boolean;
     albumFlug: boolean;
     setLoadData: (state: boolean) => void;
-    setData: (data: string) => void;
+    setData: (data: string | undefined) => void;
     defaulImage: string | null;
 }
 
@@ -33,6 +33,11 @@ const NewFileForm = ({ defaulImage, setLoadData, setData, imageFlug, videoFlug, 
         }
     }
 
+    function ResetData() {
+        setData(undefined)
+        useImage(null)
+    }
+
     return (
         <div className="black-window">
             <div className="new-file-form">
@@ -49,7 +54,8 @@ const NewFileForm = ({ defaulImage, setLoadData, setData, imageFlug, videoFlug, 
                         {videoFlug && <button className="new-file-form__file-type">Видео</button>}
                         {albumFlug && <button className="new-file-form__file-type">Альбом</button>}
                     </div>
-                    <button className="new-file-form__btn" onClick={() => setLoadData(false)}>Отмена</button>
+                    <button className="new-file-form__btn reset" onClick={ResetData}>Сбросить</button>
+                    <button className="new-file-form__btn cancel" onClick={() => setLoadData(false)}>Отмена</button>
                 </div>
             </div>
         </div>

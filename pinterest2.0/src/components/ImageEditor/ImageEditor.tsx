@@ -26,7 +26,8 @@ const ImageEditor = ({ aspect, image, width, setData, setLoadData }: IImageEdito
         [PropertiesName.BRIGHTNESS]: { name: 'яркость', value: 100 },
         [PropertiesName.CONTRAST]: { name: 'котрастность', value: 100 },
         [PropertiesName.GRAYSCALE]: { name: 'сероватость', value: 0 },
-        [PropertiesName.SATURATE]: { name: 'насыщенность', value: 100 }
+        [PropertiesName.SATURATE]: { name: 'насыщенность', value: 100 },
+        [PropertiesName.SEPIA]: { name: 'античность', value: 0 }
     });
     const [propertyIndex, usePropertyIndex] = useState<PropertiesName>(() => PropertiesName.BRIGHTNESS)
     let sliderRef = useRef<HTMLInputElement>(null);
@@ -69,7 +70,8 @@ const ImageEditor = ({ aspect, image, width, setData, setLoadData }: IImageEdito
                 [PropertiesName.BRIGHTNESS]: { name: 'яркость', value: value },
                 [PropertiesName.CONTRAST]: { name: 'котрастность', value: value },
                 [PropertiesName.GRAYSCALE]: { name: 'сероватость', value: 0 },
-                [PropertiesName.SATURATE]: { name: 'насыщенность', value: value }
+                [PropertiesName.SATURATE]: { name: 'насыщенность', value: value },
+                [PropertiesName.SEPIA]: { name: 'античность', value: 0 }
             })
             :
             useImageData({ ...imageData, [propertyIndex]: { name: imageData[propertyIndex].name, value: value } })
@@ -116,10 +118,10 @@ const ImageEditor = ({ aspect, image, width, setData, setLoadData }: IImageEdito
                     <input type="range" ref={sliderRef} min={0} max={200} onChange={event => SetProperties(false, Number(event.target.value))} />
                 </div>
                 <div className="image-editor__mods">
-                    <ButtonFuncLink title={`сбросить`} updateFunc={() => SetProperties(true)} />
-                    <ButtonFuncLink title={`сохранить`} updateFunc={SaveImage} />
+                    <ButtonFuncLink modCluss='reset' title={`сбросить`} updateFunc={() => SetProperties(true)} />
+                    <ButtonFuncLink modCluss='save' title={`сохранить`} updateFunc={SaveImage} />
                     {Object.keys(imageData).map((key, index) =>
-                        <ButtonFuncLink key={index} title={imageData[key as PropertiesName].name} updateFunc={() => usePropertyIndex(key as PropertiesName)} />
+                        <ButtonFuncLink modCluss={key} key={index} title={imageData[key as PropertiesName].name} updateFunc={() => usePropertyIndex(key as PropertiesName)} />
                     )}
                     <RotateManager canvas={canvas2D!} canvasWidth={width} updateImageFunc={() => LoadImage()} />
                 </div>

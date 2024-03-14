@@ -9,13 +9,13 @@ import NewFileForm from '../AddNewFileForm/NewFileForm';
 
 
 function FormBlock() {
-    const [avatarka, useAvatarka] = useState<string>()
+    const [avatarka, useAvatarka] = useState<string | undefined>(undefined)
     const [loadData, useLoadData] = useState<boolean>(false)
 
 
     return (
         <>
-            {loadData && <NewFileForm defaulImage={null} setData={useAvatarka} setLoadData={useLoadData} albumFlug={false} imageFlug={true} videoFlug={false} />}
+            {loadData && <NewFileForm defaulImage={avatarka !== undefined ? avatarka : null} setData={useAvatarka} setLoadData={useLoadData} albumFlug={false} imageFlug={true} videoFlug={false} />}
             <form className="auth__field" method='POST' action={'http://localhost:3000/albums/'}>
                 <h1 className="auth__app-logo">
                     Pinterest 2.0<br />
