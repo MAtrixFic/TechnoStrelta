@@ -104,11 +104,13 @@ def create_tables():
         conn.commit()
     curs.close()
 
+
 def get_users_db():
     curs = conn.cursor()
     curs.execute('SELECT row_to_json(Users) FROM Users')
     resp = curs.fetchall()
     pass
+
 
 def get_user(username):
     curs = conn.cursor()
@@ -332,3 +334,15 @@ def add_user_to_album_db(author_id, album_id, user_id):
         return True
     else:
         return False
+
+
+def delete_user_from_album_db(author_id, album_id, user_id):
+    if check_access_album(author_id, album_id):
+        if check_access_album(user_id, album_id):
+            curs = conn.cursor()
+            curs.execute(f'DELETE FROM galleryalbums WHERE album_id = {album_id} AND '
+                         f'gallery_id = (SELECT album_id from users where id = {user_id})')
+            conn.commit()
+            curs.close()
+        return True
+    return False

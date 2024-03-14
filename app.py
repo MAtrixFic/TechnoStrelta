@@ -140,5 +140,33 @@ def add_user_to_album():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
+@app.route('/api/media/deleteUserFromAlbum', methods=['POST'])
+def delete_user_from_album():
+    resp = dict(request.form)
+    token = resp['token']
+    decoded_token = check_token(token)
+    if decoded_token:
+        author = decoded_token['id']
+        album_id = resp['album_id']
+        user_id = resp['user_id']
+        if delete_user_from_album_db(author, album_id, user_id):
+            return make_response({'status': 'Success 200'}, 200)
+        else:
+            return make_response({'reason': 'У вас нет доступа к этому альбому'}, 403)
+    else:
+        return make_response({'reason': 'Недействительный токен'}, 403)
+
+
+@app.route('/api/media/renameAlbum')
+def rename_album():
+    resp = dict(request.form)
+    token = resp['token']
+    decoded_token = check_token(token)
+    if decoded_token:
+        pass
+    else:
+        return make_response({'reason': 'Недействительный токен'}, 403)
+
+
 if __name__ == '__main__':
     app.run(host=os.getenv('SERVER_HOST'), port=os.getenv('SERVER_PORT'))
