@@ -110,6 +110,12 @@ body::-webkit-scrollbar-thumb {
     border: 2px solid #EDEEF0;
 }
 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
 
 footer {
     flex: 0 0 auto;

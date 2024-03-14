@@ -1,18 +1,23 @@
 'use client'
 import '@/styles/imageeditor.scss'
-import React, { useState, useRef, useEffect } from 'react'
-import ButtonFuncLink from './ButtonFuncLink'
-import type { IImageEditorProps, IImagePropertiesData } from '@/types/imageeditor.type'
-import { PropertiesName } from '@/types/imageeditor.type'
-
 import 'react-image-crop/src/ReactCrop.scss'
-import ReactCrop from 'react-image-crop'
-import type { Crop } from 'react-image-crop'
 
-const ImageEditor = ({ image, width }: IImageEditorProps) => {
+import React, { useState, useRef, useEffect } from 'react'
+
+import ButtonFuncLink from './ButtonFuncLink'
+import RotateManager from './RotateManager'
+import { type IImageEditorProps, type IImagePropertiesData, PropertiesName, Sides } from '@/types/imageeditor.type'
+import ReactCrop, { type Crop } from 'react-image-crop'
+
+const ImageEditor = ({ aspect, image, width, setData, setLoadData }: IImageEditorProps) => {
     const imageWidth = width - 25;
-    function SetImagePosAndScale(ratio: number): [number, number, number, number] {
-        return [(width / 2) - (imageWidth / 2), (width / 2) - ((imageWidth * ratio) / 2), imageWidth, imageWidth * ratio]
+    function SetImagePosAndScale(ratio: number, side: Sides): [number, number, number, number] {
+        switch (side) {
+            case Sides.WIDTH:
+                return [(width / 2) - (imageWidth / 2), (width / 2) - ((imageWidth * ratio) / 2), imageWidth, imageWidth * ratio]
+            case Sides.HEIGHT:
+                return [(width / 2) - ((imageWidth / ratio) / 2), (width / 2) - (imageWidth / 2), imageWidth / ratio, imageWidth]
+        }
     }
 
     let canvasRef = useRef<HTMLCanvasElement>(null)
@@ -20,26 +25,26 @@ const ImageEditor = ({ image, width }: IImageEditorProps) => {
     const [imageData, useImageData] = useState<IImagePropertiesData>({
         [PropertiesName.BRIGHTNESS]: { name: 'яркость', value: 100 },
         [PropertiesName.CONTRAST]: { name: 'котрастность', value: 100 },
+        [PropertiesName.GRAYSCALE]: { name: 'сероватость', value: 0 },
+        [PropertiesName.SATURATE]: { name: 'насыщенность', value: 100 }
     });
     const [propertyIndex, usePropertyIndex] = useState<PropertiesName>(() => PropertiesName.BRIGHTNESS)
     let sliderRef = useRef<HTMLInputElement>(null);
-
-    const [newImage, useNewImage] = useState<string>();
     const [crop, useCrop] = useState<Crop>({
-        unit: '%',
+        unit: 'px',
         x: 0,
         y: 0,
-        width: 100,
-        height: 100
+        width: 0,
+        height: 0
     });
 
-    function LoadImage() {
+    function LoadImage() { 
         const img = new Image();
         img.src = image;
         img.onload = () => {
-            const imageRatio = img.height / img.width;
-            canvas2D!.clearRect(0, 0, width, width);
-            canvas2D!.drawImage(img, ...SetImagePosAndScale(imageRatio));
+            let imageRatio = img.height / img.width;
+            canvas2D?.clearRect(0, 0, width, width);
+            canvas2D?.drawImage(img, ...SetImagePosAndScale(imageRatio, imageRatio > 1 ? Sides.HEIGHT : Sides.WIDTH));
         }
     }
 
@@ -53,17 +58,32 @@ const ImageEditor = ({ image, width }: IImageEditorProps) => {
             ctx.putImageData(imageData, 0, 0);
             var image = new Image();
             image.src = canvas.toDataURL();
-            useNewImage(image.src);
+            setData(image.src);
+            setLoadData(false);
         }
     }
 
-    function RotateObject(rotation: number, canvasWidth: number, canvasHeight: number) {
-        canvas2D!.clearRect(0, 0, width, width);
-        canvas2D?.translate(canvasWidth / 2, canvasHeight / 2);
-        canvas2D?.rotate((rotation * Math.PI) / 180);
-        canvas2D?.translate(-canvasWidth / 2, -canvasHeight / 2);
-        LoadImage();
+    function SetProperties(makeNumll: boolean, value: number = 100) {
+        makeNumll ?
+            useImageData({
+                [PropertiesName.BRIGHTNESS]: { name: 'яркость', value: value },
+                [PropertiesName.CONTRAST]: { name: 'котрастность', value: value },
+                [PropertiesName.GRAYSCALE]: { name: 'сероватость', value: 0 },
+                [PropertiesName.SATURATE]: { name: 'насыщенность', value: value }
+            })
+            :
+            useImageData({ ...imageData, [propertyIndex]: { name: imageData[propertyIndex].name, value: value } })
     }
+
+    useEffect(() => {
+        if (canvas2D !== undefined) {
+            canvas2D.filter = Object.keys(imageData).map(key => `${key}(${imageData[key as PropertiesName].value}%)`).join(' ')
+            LoadImage()
+        }
+        if (sliderRef.current !== null)
+            sliderRef.current.value = String(imageData[propertyIndex].value)
+
+    }, [imageData])
 
     useEffect(() => {
         const img = new Image();
@@ -71,12 +91,12 @@ const ImageEditor = ({ image, width }: IImageEditorProps) => {
         const ctx = canvasRef.current?.getContext('2d');
         useCanvas2D(ctx as CanvasRenderingContext2D);
         img.onload = () => {
-            const imageRatio = img.height / img.width;
+            let imageRatio = img.height / img.width;
             if (canvasRef.current !== null) {
                 canvasRef.current.width = width;
                 canvasRef.current.height = width;
             }
-            ctx?.drawImage(img, ...SetImagePosAndScale(imageRatio));
+            ctx?.drawImage(img, ...SetImagePosAndScale(imageRatio, imageRatio > 1 ? Sides.HEIGHT : Sides.WIDTH));
         }
     }, [canvasRef])
 
@@ -87,32 +107,21 @@ const ImageEditor = ({ image, width }: IImageEditorProps) => {
 
     return (
         <div className='image-editor'>
-            {newImage && <img src={newImage} alt='*' />}
-            <ReactCrop ruleOfThirds crop={crop} onChange={cropEvent => { useCrop(cropEvent) }}>
+            <ReactCrop aspect={aspect} ruleOfThirds crop={crop} onChange={cropEvent => { useCrop(cropEvent) }}>
                 {<canvas ref={canvasRef} />}
             </ReactCrop>
             <div className="image-editor__manager">
                 <div className="image-editor__slider">
                     <span>{imageData[propertyIndex].name}</span>
-                    <input type="range" ref={sliderRef} min={0} max={200} onChange={event => {
-                        useImageData({ ...imageData, [propertyIndex]: { name: imageData[propertyIndex].name, value: Number(event.target.value) } })
-                        canvas2D!.filter = Object.keys(imageData).map(key => `${key}(${imageData[key as PropertiesName].value}%)`).join(' ')
-                        LoadImage()
-                    }} />
+                    <input type="range" ref={sliderRef} min={0} max={200} onChange={event => SetProperties(false, Number(event.target.value))} />
                 </div>
                 <div className="image-editor__mods">
+                    <ButtonFuncLink title={`сбросить`} updateFunc={() => SetProperties(true)} />
+                    <ButtonFuncLink title={`сохранить`} updateFunc={SaveImage} />
                     {Object.keys(imageData).map((key, index) =>
                         <ButtonFuncLink key={index} title={imageData[key as PropertiesName].name} updateFunc={() => usePropertyIndex(key as PropertiesName)} />
                     )}
-                    <div className="image-editor__transform">
-                        <ButtonFuncLink title='image' updateFunc={SaveImage} />
-                    </div>
-                    <div className="image-editor__transform">
-                        <ButtonFuncLink title='<' updateFunc={() => RotateObject(90, width, width)} />
-                    </div>
-                    <div className="image-editor__transform">
-                        <ButtonFuncLink title='>' updateFunc={() => RotateObject(-90, width, width)} />
-                    </div>
+                    <RotateManager canvas={canvas2D!} canvasWidth={width} updateImageFunc={() => LoadImage()} />
                 </div>
             </div>
         </div>

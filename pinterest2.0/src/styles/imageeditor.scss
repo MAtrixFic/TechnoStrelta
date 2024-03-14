@@ -3,13 +3,17 @@
 .image-editor {
     width: 100%;
     height: 100%;
-    display: grid;
-    grid-template-rows: 1fr minmax(100px, 140px);
+    display: flex;
+    gap: 3rem;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 }
 
 .image-editor__manager {
+    max-width: 800px;
+    min-height: 100px;
+    max-height: 140px;
     display: grid;
     grid-template-rows: minmax(40px, 60px) 1fr;
     justify-content: center;
@@ -39,11 +43,34 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 2rem;
 }
 
-.ReactCrop__crop-mask{
+.ReactCrop__crop-mask {
     width: 100%;
     height: 100%;
+}
+
+.ReactCrop {
+    width: fit-content;
+}
+
+.image-editor__rotate-block {
+    max-width: 300px;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+
+    input {
+        border: 2px solid $dark;
+        border-radius: 10px;
+        height: 100%;
+        max-width: 140px;
+        padding: 1rem;
+        font-size: 1.2rem;
+        letter-spacing: 0.12rem;
+        color: $dark;
+    }
 }
 
 .image-editor__btn {
