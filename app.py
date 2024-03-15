@@ -243,5 +243,21 @@ def delete_tag_from_media():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
+@app.route('/api/media/deleteMedia', methods=['DELETE'])
+def delete_media():
+    resp = dict(request.form)
+    token = resp['token']
+    decoded_token = check_token(token)
+    if decoded_token:
+        media_id = resp['media_id']
+        user_id = decoded_token['id']
+        if check_access_media(media_id, user_id):
+            if delete_media_db(media_id):
+                return make_response({'status': 'Success 200'}, 200)
+        return make_response({'reason': 'Неизвестный id медиа, либо у вас нет к нему доступа'})
+    else:
+        return make_response({'reason': 'Недействительный токен'}, 403)
+
+
 if __name__ == '__main__':
     app.run(host=os.getenv('SERVER_HOST'), port=os.getenv('SERVER_PORT'))

@@ -180,7 +180,9 @@ def add_user(username, password, region, mail, avatar):
     if username not in get_usernames_db():
         curs = conn.cursor()
         avatar_id = add_avatar(avatar)
-        curs.execute(f'INSERT INTO Users(username, pass_hash, region, email, avatar_id) VALUES(\'{username}\', \'{str(hashpw(bytes(password, encoding="UTF-8"), salt))[2:-1]}\', \'{region}\', \'{mail}\', {avatar_id})')
+        curs.execute(f'INSERT INTO Users(username, pass_hash, region, email, avatar_id) '
+                     f'VALUES(\'{username}\', \'{str(hashpw(bytes(password, encoding="UTF-8"), salt))[2:-1]}\', '
+                     f'\'{region}\', \'{mail}\', {avatar_id})')
         conn.commit()
         curs.execute(f'INSERT INTO Gallerys DEFAULT VALUES RETURNING id')
         conn.commit()
@@ -209,7 +211,8 @@ def generate_confirmation_code(token):
             conn.commit()
         else:
             curs.execute(f'UPDATE UsersCodes SET confirmation_code = {random.randint(100000, 999999)}, '
-                         f'created_at = \'{str(datetime.utcnow() + timedelta(seconds=300))}\' WHERE user_id = \'{token["id"]}\'')
+                         f'created_at = \'{str(datetime.utcnow() + timedelta(seconds=300))}\''
+                         f' WHERE user_id = \'{token["id"]}\'')
             conn.commit()
         curs.execute(f'SELECT confirmation_code FROM userscodes WHERE user_id = {token["id"]}')
         code = curs.fetchall()[0][0]
@@ -412,7 +415,8 @@ def check_access_gallery(username_id, gallery_id):
 
 def check_access_album(username_id, album_id):
     curs = conn.cursor()
-    curs.execute(f'SELECT album_id FROM galleryalbums WHERE gallery_id = (SELECT users.gallery_id from users where id = {username_id})')
+    curs.execute(f'SELECT album_id FROM galleryalbums WHERE gallery_id = '
+                 f'(SELECT users.gallery_id from users where id = {username_id})')
     resp1 = curs.fetchall()
     curs.execute(f'SELECT ispublic FROM albums WHERE id = {album_id}')
     resp2 = curs.fetchall()
@@ -465,13 +469,15 @@ def delete_album_db(album_id):
     try:
         curs = conn.cursor()
         curs.execute(f'DELETE FROM albummedias WHERE album_id = {album_id} RETURNING media_id')
-        medias_id = curs.fetchall()
+        medias_id = [i[0] for i in curs.fetchall()]
         conn.commit()
-        curs.execute(f'DELETE FROM medias WHERE id IN ({", ".join([str(i[0]) for i in medias_id])}) RETURNING metadata_id')
-        metadatas_id = curs.fetchall()
-        conn.commit()
-        curs.execute(f'DELETE FROM metadatas WHERE id in ({", ".join([str(i[0]) for i in metadatas_id])})')
-        conn.commit()
+        for i in medias_id:
+            delete_media_db(i)
+        # curs.execute(f'DELETE FROM medias WHERE id IN ({", ".join([str(i[0]) for i in medias_id])}) RETURNING metadata_id')
+        # metadatas_id = curs.fetchall()
+        # conn.commit()
+        # curs.execute(f'DELETE FROM metadatas WHERE id in ({", ".join([str(i[0]) for i in metadatas_id])})')
+        # conn.commit()
         curs.execute(f'DELETE FROM galleryalbums WHERE album_id = {album_id}')
         conn.commit()
         curs.execute(f'DELETE FROM albums WHERE id = {album_id}')
@@ -532,6 +538,21 @@ def delete_tag_from_media_db(media_id, tag):
             tag_id = curs.fetchall()
             curs.execute(f'DELETE FROM mediatags WHERE media_id = {media_id} AND tag_id = {tag_id}')
             conn.commit()
+        return True
+    except:
+        return False
+
+
+def delete_media_db(media_id):
+    try:
+        curs = conn.cursor()
+        curs.execute(f'DELETE FROM mediatags WHERE media_id = {media_id}')
+        conn.commit()
+        curs.execute(f'DELETE FROM medias WHERE id = {media_id} RETURNING metadata_id')
+        metadata_id = curs.fetchall()[0][0]
+        conn.commit()
+        curs.execute(f'DELETE FROM metadatas WHERE id = {metadata_id}')
+        conn.commit()
         return True
     except:
         return False
