@@ -99,7 +99,7 @@ def add_media():
                 add_media_to_album(file, tags, metadata, coords, title, username_id, album_id)
             else:
                 return make_response({'reason': "У пользователя нет доступа к данному альбому"}, 403)
-        return make_response({'status': 'Success 200'}, 200)
+        return make_response({'status': 'Success 201'}, 201)
     else:
         return make_response({'reason': 'Недействительный токен'}, 403)
 

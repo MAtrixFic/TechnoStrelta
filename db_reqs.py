@@ -53,8 +53,18 @@ def create_tables():
                       id serial primary key,
                       title TEXT,
                       media_base64 TEXT,
-                      tags TEXT[],
                       coordinates TEXT
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS Tags(
+                      id serial primary key,
+                      title TEXT
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS Mediatags(
+                      id serial primary key,
+                      media_id INTEGER REFERENCES Medias(id),
+                      tag_id INTEGER REFERENCES Tags(id)
                     );
                     
                     CREATE TABLE IF NOT EXISTS Metadatas(
@@ -257,14 +267,35 @@ def add_avatar(file):
         return False
 
 
+def add_tags_to_media(tags, media_id):
+    try:
+        curs = conn.cursor()
+        curs.execute(f'SELECT title FROM tags')
+        resp = [i[0] for i in curs.fetchall()]
+        for i in tags:
+            if i not in resp:
+                curs.execute(f'INSERT INTO tags (title) VALUES (\'{i}\') RETURNING id')
+                conn.commit()
+            else:
+                curs.execute(f'SELECT id FROM tags WHERE title = \'{i}\'')
+            tag_id = curs.fetchall()[0][0]
+            curs.execute(f'INSERT INTO mediatags (media_id, tag_id) VALUES ({media_id}, {tag_id})')
+            conn.commit()
+        curs.close()
+        return True
+    except:
+        return False
+
+
 def add_media_to_db(file, tags, metadata, coords, title, username_id):
     try:
         metadata_id = add_metadata_to_db(metadata, username_id)
         curs = conn.cursor()
-        curs.execute(f'INSERT INTO Medias (media_base64, tags, metadata_id, coordinates, title) VALUES '
-                     f'(\'{file}\', ARRAY{str(tags)}, {metadata_id}, \'{coords}\', \'{title}\') RETURNING id')
+        curs.execute(f'INSERT INTO Medias (media_base64, metadata_id, coordinates, title) VALUES '
+                     f'(\'{file}\', {metadata_id}, \'{coords}\', \'{title}\') RETURNING id')
         media_id = curs.fetchall()[0][0]
         conn.commit()
+        add_tags_to_media(tags, media_id)
         curs.close()
         return media_id
     except:
