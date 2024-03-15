@@ -320,26 +320,6 @@ def add_tag_to_media_db(media_id, tag):
         return False
 
 
-def add_tags_to_media(tags, media_id):
-    try:
-        curs = conn.cursor()
-        curs.execute(f'SELECT title FROM tags')
-        resp = [i[0] for i in curs.fetchall()]
-        for i in tags:
-            if i not in resp:
-                curs.execute(f'INSERT INTO tags (title) VALUES (\'{i}\') RETURNING id')
-                conn.commit()
-            else:
-                curs.execute(f'SELECT id FROM tags WHERE title = \'{i}\'')
-            tag_id = curs.fetchall()[0][0]
-            curs.execute(f'INSERT INTO mediatags (media_id, tag_id) VALUES ({media_id}, {tag_id})')
-            conn.commit()
-        curs.close()
-        return True
-    except:
-        return False
-
-
 def add_media_to_db(file, tags, metadata, coords, title, username_id):
     try:
         metadata_id = add_metadata_to_db(metadata, username_id)
@@ -540,5 +520,18 @@ def check_access_media(media_id, user_id):
             if check_access_album(user_id, is_media_in_albums(media_id)):
                 return True
         return False
+    except:
+        return False
+
+
+def delete_tag_from_media_db(media_id, tag):
+    try:
+        if check_for_tag_in_media(tag):
+            curs = conn.cursor()
+            curs.execute(f'SELECT id FROM tags WHERE title = \'{tag}\'')
+            tag_id = curs.fetchall()
+            curs.execute(f'DELETE FROM mediatags WHERE media_id = {media_id} AND tag_id = {tag_id}')
+            conn.commit()
+        return True
     except:
         return False
