@@ -118,12 +118,12 @@ def create_album():
         else:
             isPublic = False
         add_album_to_db(username_id, title, isPublic)
-        return make_response({'status': 'Success 200'}, 201)
+        return make_response({'status': 'Success 201'}, 201)
     else:
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/addUserToAlbum', methods=['POST'])
+@app.route('/api/media/addUserToAlbum', methods=['PATCH'])
 def add_user_to_album():
     resp = dict(request.form)
     token = resp['token']
@@ -140,7 +140,7 @@ def add_user_to_album():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/deleteUserFromAlbum', methods=['POST'])
+@app.route('/api/media/deleteUserFromAlbum', methods=['PATCH'])
 def delete_user_from_album():
     resp = dict(request.form)
     token = resp['token']
@@ -157,13 +157,66 @@ def delete_user_from_album():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/renameAlbum')
+@app.route('/api/media/renameAlbum', methods=['PATCH'])
 def rename_album():
     resp = dict(request.form)
     token = resp['token']
     decoded_token = check_token(token)
     if decoded_token:
-        pass
+        album_id = resp['album_id']
+        user_id = decoded_token['id']
+        new_title = resp['new_title']
+        if check_access_album(user_id, album_id):
+            if rename_album_db(album_id, new_title):
+                return make_response({'status': 'Success 200'}, 200)
+            return make_response({'reason': 'Ошибка на сервере'}, 500)
+        return make_response({'reason': 'У вас нет доступа к этому альбому'}, 403)
+    else:
+        return make_response({'reason': 'Недействительный токен'}, 403)
+
+
+@app.route('/api/media/deleteAlbum', methods=['DELETE'])
+def delete_album():
+    resp = dict(request.form)
+    token = resp['token']
+    decoded_token = check_token(token)
+    if decoded_token:
+        album_id = resp['album_id']
+        user_id = decoded_token['id']
+        if check_access_album(user_id, album_id):
+            if delete_album_db(album_id):
+                return make_response({'status': 'Success 200'}, 200)
+            return make_response({'reason': 'Ошибка на сервере'}, 500)
+        return make_response({'reason': 'У вас нет доступа к этому альбому'}, 403)
+    else:
+        return make_response({'reason': 'Недействительный токен'}, 403)
+
+
+@app.route('/api/media/updateMedia', methods=['PATCH'])
+def update_media():
+    resp = dict(request.form)
+    token = resp['token']
+    decoded_token = check_token(token)
+    if decoded_token:
+        media_id = resp['media_id']
+        user_id = decoded_token['id']
+        new_file = resp['new_file']
+        if is_media_in_gallerys(media_id):
+            if check_access_album(user_id, is_media_in_albums(media_id)):
+                if update_media_db(media_id, new_file):
+                    return make_response({'status': 'Success 200'}, 200)
+                return make_response({'reason': 'Ошибка на сервере'}, 500)
+            else:
+                return make_response({'reason': 'У вас нет доступа к этому альбому'}, 403)
+        elif is_media_in_albums(media_id):
+            if check_access_gallery(user_id, is_media_in_gallerys(media_id)):
+                if update_media_db(media_id, new_file):
+                    return make_response({'status': 'Success 200'}, 200)
+                return make_response({'reason': 'Ошибка на сервере'}, 500)
+            else:
+                return make_response({'reason': 'У вас нет доступа к этой галерее'}, 403)
+        else:
+            return make_response({'reason': 'Неизвестный id медиа'}, 404)
     else:
         return make_response({'reason': 'Недействительный токен'}, 403)
 

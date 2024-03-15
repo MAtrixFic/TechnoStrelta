@@ -186,31 +186,34 @@ def add_user(username, password, region, mail, avatar):
 
 
 def generate_confirmation_code(token):
-    curs = conn.cursor()
-    curs.execute(f'SELECT row_to_json(UsersCodes) FROM UsersCodes WHERE user_id = {token["id"]}')
-    resp = curs.fetchall()
-    seed_r = datetime.utcnow()
-    random.seed = seed_r
-    if resp == []:
-        curs.execute(f'INSERT INTO UsersCodes (user_id, confirmation_code, created_at) VALUES '
-                     f'(\'{token["id"]}\', {random.randint(100000, 999999)}, '
-                     f'\'{str(datetime.utcnow() + timedelta(seconds=300))}\')')
-        conn.commit()
-    else:
-        curs.execute(f'UPDATE UsersCodes SET confirmation_code = {random.randint(100000, 999999)}, '
-                     f'created_at = \'{str(datetime.utcnow() + timedelta(seconds=300))}\' WHERE user_id = \'{token["id"]}\'')
-        conn.commit()
-    curs.execute(f'SELECT confirmation_code FROM userscodes WHERE user_id = {token["id"]}')
-    code = curs.fetchall()[0][0]
-    curs.close()
-
-    return code
+    try:
+        curs = conn.cursor()
+        curs.execute(f'SELECT row_to_json(UsersCodes) FROM UsersCodes WHERE user_id = {token["id"]}')
+        resp = curs.fetchall()
+        seed_r = datetime.utcnow()
+        random.seed = seed_r
+        if resp == []:
+            curs.execute(f'INSERT INTO UsersCodes (user_id, confirmation_code, created_at) VALUES '
+                         f'(\'{token["id"]}\', {random.randint(100000, 999999)}, '
+                         f'\'{str(datetime.utcnow() + timedelta(seconds=300))}\')')
+            conn.commit()
+        else:
+            curs.execute(f'UPDATE UsersCodes SET confirmation_code = {random.randint(100000, 999999)}, '
+                         f'created_at = \'{str(datetime.utcnow() + timedelta(seconds=300))}\' WHERE user_id = \'{token["id"]}\'')
+            conn.commit()
+        curs.execute(f'SELECT confirmation_code FROM userscodes WHERE user_id = {token["id"]}')
+        code = curs.fetchall()[0][0]
+        curs.close()
+        return code
+    except:
+        return False
 
 
 def check_confirmation_code(token, confirmation_code):
     curs = conn.cursor()
     curs.execute(f'SELECT row_to_json(UsersCodes) FROM UsersCodes WHERE username_id = {token["id"]}')
     resp = curs.fetchall()
+    curs.close()
     if resp['confirmation_code'] == confirmation_code and datetime.fromisoformat(resp['created_at']) < datetime.utcnow():
         return True
     else:
@@ -218,93 +221,123 @@ def check_confirmation_code(token, confirmation_code):
 
 
 def send_confirm_email(token):
-    email = 'tekhno.strelka@mail.ru'
-    password = 'cCeTMHz7BTvLefbJcJ2K'
-    smtp_server = 'smtp.mail.ru'
-    smtp_port = 465
-    server = smtplib.SMTP_SSL(smtp_server, smtp_port)
-    server.login(email, password)
-    curs = conn.cursor()
-    curs.execute(f'SELECT email FROM Users WHERE username = \'{token["username"]}\'')
-    recipient = curs.fetchall()[0][0]
-    confirmation_code = generate_confirmation_code(token)
-    msg = MIMEMultipart('alternative')
-    msg['Subject']  = 'Код подтверждения'
-    msg['From'] = email
-    msg['To'] = recipient
-    msg.attach(MIMEText(f'Ваш код подтверждения:\n{confirmation_code}', 'plain'))
-    server.send_message(msg)
-    server.close()
-    curs.close()
-    return True
+    try:
+        email = 'tekhno.strelka@mail.ru'
+        password = 'cCeTMHz7BTvLefbJcJ2K'
+        smtp_server = 'smtp.mail.ru'
+        smtp_port = 465
+        server = smtplib.SMTP_SSL(smtp_server, smtp_port)
+        server.login(email, password)
+        curs = conn.cursor()
+        curs.execute(f'SELECT email FROM Users WHERE username = \'{token["username"]}\'')
+        recipient = curs.fetchall()[0][0]
+        confirmation_code = generate_confirmation_code(token)
+        msg = MIMEMultipart('alternative')
+        msg['Subject']  = 'Код подтверждения'
+        msg['From'] = email
+        msg['To'] = recipient
+        msg.attach(MIMEText(f'Ваш код подтверждения:\n{confirmation_code}', 'plain'))
+        server.send_message(msg)
+        server.close()
+        curs.close()
+        return True
+    except:
+        return False
 
 
 def add_avatar(file):
-    curs = conn.cursor()
-    curs.execute(f'INSERT INTO Medias (media_base64) VALUES(\'{file}\') RETURNING id')
-    conn.commit()
-    resp = curs.fetchall()
-    return resp[0][0]
+    try:
+        curs = conn.cursor()
+        curs.execute(f'INSERT INTO Medias (media_base64) VALUES(\'{file}\') RETURNING id')
+        conn.commit()
+        resp = curs.fetchall()
+        curs.close()
+        return resp[0][0]
+    except:
+        return False
 
 
 def add_media_to_db(file, tags, metadata, coords, title, username_id):
-    metadata_id = add_metadata_to_db(metadata, username_id)
-    curs = conn.cursor()
-    curs.execute(f'INSERT INTO Medias (media_base64, tags, metadata_id, coordinates, title) VALUES '
-                 f'(\'{file}\', ARRAY{str(tags)}, {metadata_id}, \'{coords}\', \'{title}\') RETURNING id')
-    media_id = curs.fetchall()[0][0]
-    conn.commit()
-    return media_id
+    try:
+        metadata_id = add_metadata_to_db(metadata, username_id)
+        curs = conn.cursor()
+        curs.execute(f'INSERT INTO Medias (media_base64, tags, metadata_id, coordinates, title) VALUES '
+                     f'(\'{file}\', ARRAY{str(tags)}, {metadata_id}, \'{coords}\', \'{title}\') RETURNING id')
+        media_id = curs.fetchall()[0][0]
+        conn.commit()
+        curs.close()
+        return media_id
+    except:
+        return False
 
 
 def add_metadata_to_db(metadata, username_id):
-    curs = conn.cursor()
-    curs.execute(f'INSERT INTO Metadatas (create_timestamp, city, author_id) VALUES '
-                 f'({metadata["create_timestamp"]}, \'{metadata["city"]}\', {username_id}) RETURNING id')
-    metadata_id = curs.fetchall()[0][0]
-    conn.commit()
-    return metadata_id
+    try:
+        curs = conn.cursor()
+        curs.execute(f'INSERT INTO Metadatas (create_timestamp, city, author_id) VALUES '
+                     f'({metadata["create_timestamp"]}, \'{metadata["city"]}\', {username_id}) RETURNING id')
+        metadata_id = curs.fetchall()[0][0]
+        conn.commit()
+        curs.close()
+        return metadata_id
+    except:
+        return False
 
 
 def add_album_to_db(gallery_id, title, isPublic):
-    curs = conn.cursor()
-    curs.execute(f'INSERT INTO Albums (name, ispublic) VALUES (\'{title}\', {str(isPublic).lower()}) RETURNING id')
-    album_id = curs.fetchall()[0][0]
-    conn.commit()
-    curs.execute(f'INSERT INTO GalleryAlbums (gallery_id, album_id) VALUES ({gallery_id}, {album_id})')
-    conn.commit()
-    return album_id
+    try:
+        curs = conn.cursor()
+        curs.execute(f'INSERT INTO Albums (name, ispublic) VALUES (\'{title}\', {str(isPublic).lower()}) RETURNING id')
+        album_id = curs.fetchall()[0][0]
+        conn.commit()
+        curs.execute(f'INSERT INTO GalleryAlbums (gallery_id, album_id) VALUES ({gallery_id}, {album_id})')
+        conn.commit()
+        curs.close()
+        return album_id
+    except:
+        return False
 
 
 def get_gallery_id(id):
-    curs = conn.cursor()
-    curs.execute(f'SELECT gallery_id FROM users WHERE id = {id}')
-    resp = curs.fetchall()[0][0]
-    return resp
+    try:
+        curs = conn.cursor()
+        curs.execute(f'SELECT gallery_id FROM users WHERE id = {id}')
+        resp = curs.fetchall()[0][0]
+        curs.close()
+        return resp
+    except:
+        return False
 
 
 def add_media_to_gallery(file, tags, metadata, coords, title, username_id, gallery_id):
-    media_id = add_media_to_db(file, tags, metadata, coords, title, username_id)
-    curs = conn.cursor()
-    curs.execute(f'INSERT INTO gallerymedias (gallery_id, media_id) VALUES ({gallery_id}, {media_id})')
-    conn.commit()
-    curs.close()
-    return True
+    try:
+        media_id = add_media_to_db(file, tags, metadata, coords, title, username_id)
+        curs = conn.cursor()
+        curs.execute(f'INSERT INTO gallerymedias (gallery_id, media_id) VALUES ({gallery_id}, {media_id})')
+        conn.commit()
+        curs.close()
+        return True
+    except:
+        return False
 
 
 def add_media_to_album(file, tags, metadata, coords, title, username_id, album_id):
-    media_id = add_media_to_db(file, tags, metadata, coords, title, username_id)
-    curs = conn.cursor()
-    curs.execute(f'INSERT INTO albummedias (album_id, media_id) VALUES ({album_id}, {media_id})')
-    conn.commit()
-    curs.close()
-    return True
+    try:
+        media_id = add_media_to_db(file, tags, metadata, coords, title, username_id)
+        curs = conn.cursor()
+        curs.execute(f'INSERT INTO albummedias (album_id, media_id) VALUES ({album_id}, {media_id})')
+        conn.commit()
+        curs.close()
+        return True
+    except:
+        return False
 
 
 def check_access_gallery(username_id, gallery_id):
     curs = conn.cursor()
     curs.execute(f'SELECT gallery_id FROM users WHERE id = {username_id}')
     resp = curs.fetchall()
+    curs.close()
     if resp[0][0] == int(gallery_id):
         return True
     else:
@@ -317,6 +350,7 @@ def check_access_album(username_id, album_id):
     resp1 = curs.fetchall()
     curs.execute(f'SELECT ispublic FROM albums WHERE id = {album_id}')
     resp2 = curs.fetchall()
+    curs.close()
     if (int(album_id),) in resp1 or resp2[0][0]:
         return True
     else:
@@ -337,12 +371,75 @@ def add_user_to_album_db(author_id, album_id, user_id):
 
 
 def delete_user_from_album_db(author_id, album_id, user_id):
-    if check_access_album(author_id, album_id):
-        if check_access_album(user_id, album_id):
-            curs = conn.cursor()
-            curs.execute(f'DELETE FROM galleryalbums WHERE album_id = {album_id} AND '
-                         f'gallery_id = (SELECT album_id from users where id = {user_id})')
-            conn.commit()
-            curs.close()
+    try:
+        if check_access_album(author_id, album_id):
+            if check_access_album(user_id, album_id):
+                curs = conn.cursor()
+                curs.execute(f'DELETE FROM galleryalbums WHERE album_id = {album_id} AND '
+                             f'gallery_id = (SELECT album_id from users where id = {user_id})')
+                conn.commit()
+                curs.close()
+            return True
+    except:
+        return False
+
+
+def rename_album_db(album_id, new_title):
+    try:
+        curs = conn.cursor()
+        curs.execute(f'UPDATE albums SET name = \'{new_title}\' WHERE id = {album_id}')
+        conn.commit()
+        curs.close()
         return True
-    return False
+    except:
+        return False
+
+
+def delete_album_db(album_id):
+    try:
+        curs = conn.cursor()
+        curs.execute(f'DELETE FROM albummedias WHERE album_id = {album_id} RETURNING media_id')
+        medias_id = curs.fetchall()
+        conn.commit()
+        curs.execute(f'DELETE FROM medias WHERE id IN ({", ".join([str(i[0]) for i in medias_id])}) RETURNING metadata_id')
+        metadatas_id = curs.fetchall()
+        conn.commit()
+        curs.execute(f'DELETE FROM metadatas WHERE id in ({", ".join([str(i[0]) for i in metadatas_id])})')
+        conn.commit()
+        curs.execute(f'DELETE FROM galleryalbums WHERE album_id = {album_id}')
+        conn.commit()
+        curs.execute(f'DELETE FROM albums WHERE id = {album_id}')
+        conn.commit()
+        curs.close()
+        return True
+    except:
+        return False
+
+
+def is_media_in_gallerys(media_id):
+    curs = conn.cursor()
+    curs.execute(f'SELECT gallery_id FROM gallerymedias WHERE media_id = {media_id}')
+    resp = curs.fetchall()
+    if resp == []:
+        return False
+    return resp[0][0]
+
+
+def is_media_in_albums(media_id):
+    curs = conn.cursor()
+    curs.execute(f'SELECT album_id FROM albummedias WHERE media_id = {media_id}')
+    resp = curs.fetchall()
+    if resp == []:
+        return False
+    return resp[0][0]
+
+
+def update_media_db(media_id, new_file):
+    try:
+        curs = conn.cursor()
+        curs.execute(f'UPDATE medias SET file = \'{new_file}\' WHERE id = {media_id}')
+        conn.commit()
+        curs.close()
+        return True
+    except:
+        return False
