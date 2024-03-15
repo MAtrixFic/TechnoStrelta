@@ -259,10 +259,63 @@ def add_avatar(file):
     try:
         curs = conn.cursor()
         curs.execute(f'INSERT INTO Medias (media_base64) VALUES(\'{file}\') RETURNING id')
-        conn.commit()
         resp = curs.fetchall()
+        conn.commit()
         curs.close()
         return resp[0][0]
+    except:
+        return False
+
+
+def check_for_tag_in_db(tag):
+    try:
+        curs = conn.cursor()
+        curs.execute(f'SELECT id FROM tags WHERE title = \'{tag}\'')
+        resp = curs.fetchall()
+        curs.close()
+        if resp == []:
+            return False
+        return resp[0][0]
+    except:
+        return False
+
+
+def add_tag_to_db(tag):
+    try:
+        curs = conn.cursor()
+        curs.execute(f'INSERT INTO tags (title) VALUES (\'{tag}\') RETURNING id')
+        tag_id = curs.fetchall()[0][0]
+        conn.commit()
+        curs.close()
+        return tag_id
+    except:
+        return False
+
+
+def check_for_tag_in_media(media_id, tag_id):
+    try:
+        curs = conn.cursor()
+        curs.execute(f'SELECT * FROM mediatags WHERE media_id = {media_id} AND tag_id = {tag_id}')
+        resp = curs.fetchall()
+        if resp == []:
+            return False
+        else:
+            return True
+    except:
+        return False
+
+
+def add_tag_to_media_db(media_id, tag):
+    try:
+        if not check_for_tag_in_db(tag):
+            tag_id = add_tag_to_db(tag)
+        else:
+            tag_id = check_for_tag_in_db(tag)
+        curs = conn.cursor()
+        if not check_for_tag_in_media(media_id, tag_id):
+            curs.execute(f'INSERT INTO mediatags (media_id, tag_id) VALUES ({media_id}, {tag_id})')
+            conn.commit()
+        return True
     except:
         return False
 
@@ -295,7 +348,9 @@ def add_media_to_db(file, tags, metadata, coords, title, username_id):
                      f'(\'{file}\', {metadata_id}, \'{coords}\', \'{title}\') RETURNING id')
         media_id = curs.fetchall()[0][0]
         conn.commit()
-        add_tags_to_media(tags, media_id)
+        for i in tags:
+            add_tag_to_media_db(media_id, i)
+        # add_tags_to_media(tags, media_id)
         curs.close()
         return media_id
     except:
@@ -472,5 +527,18 @@ def update_media_db(media_id, new_file):
         conn.commit()
         curs.close()
         return True
+    except:
+        return False
+
+
+def check_access_media(media_id, user_id):
+    try:
+        if is_media_in_gallerys(media_id):
+            if check_access_gallery(user_id, is_media_in_gallerys(media_id)):
+                return True
+        elif is_media_in_albums(media_id):
+            if check_access_album(user_id, is_media_in_albums(media_id)):
+                return True
+        return False
     except:
         return False

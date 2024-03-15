@@ -201,22 +201,27 @@ def update_media():
         media_id = resp['media_id']
         user_id = decoded_token['id']
         new_file = resp['new_file']
-        if is_media_in_gallerys(media_id):
-            if check_access_album(user_id, is_media_in_albums(media_id)):
-                if update_media_db(media_id, new_file):
-                    return make_response({'status': 'Success 200'}, 200)
-                return make_response({'reason': 'Ошибка на сервере'}, 500)
-            else:
-                return make_response({'reason': 'У вас нет доступа к этому альбому'}, 403)
-        elif is_media_in_albums(media_id):
-            if check_access_gallery(user_id, is_media_in_gallerys(media_id)):
-                if update_media_db(media_id, new_file):
-                    return make_response({'status': 'Success 200'}, 200)
-                return make_response({'reason': 'Ошибка на сервере'}, 500)
-            else:
-                return make_response({'reason': 'У вас нет доступа к этой галерее'}, 403)
-        else:
-            return make_response({'reason': 'Неизвестный id медиа'}, 404)
+        if check_access_media(media_id, user_id):
+            if update_media_db(media_id, new_file):
+                return make_response({'status': 'Success 200'}, 200)
+        return make_response({'reason': 'Неизвестный id медиа, либо у вас нет к нему доступа'})
+    else:
+        return make_response({'reason': 'Недействительный токен'}, 403)
+
+
+@app.route('/api/media/addTagToMedia', methods=['PATCH'])
+def add_tag_to_media():
+    resp = dict(request.form)
+    token = resp['token']
+    decoded_token = check_token(token)
+    if decoded_token:
+        media_id = resp['media_id']
+        new_tag = resp['tag']
+        user_id = decoded_token['id']
+        if check_access_media(media_id, user_id):
+            if add_tag_to_media_db(media_id, new_tag):
+                return make_response({'status': 'Success 200'}, 200)
+        return make_response({'reason': 'Неизвестный id медиа, либо у вас нет к нему доступа'})
     else:
         return make_response({'reason': 'Недействительный токен'}, 403)
 
