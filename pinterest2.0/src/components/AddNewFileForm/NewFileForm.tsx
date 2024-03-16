@@ -1,64 +1,60 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, createContext } from 'react'
 
 import '@/styles/newfile.scss'
 
-import download from '@/images/download.png'
-
 import ImageEditor from '../ImageEditor/ImageEditor'
+import NewData from './NewData'
+import LoadData from './LoadData'
+import { IAvaContextProps, IImageContextProps, IVideoContextProps, INewFileProps, IMetaData, DataTypes, DEFAULT_META_DATA } from '@/types/newfileform.type'
 
-interface NewFileProps {
-    imageFlug: boolean;
-    videoFlug: boolean;
-    albumFlug: boolean;
-    setLoadData: (state: boolean) => void;
-    setData: (data: string | undefined) => void;
-    defaulImage: string | null;
-}
+export const AvaContext = createContext<IAvaContextProps | null>(null)
+export const ImageContext = createContext<IImageContextProps | null>(null)
+export const IVideoContext = createContext<IVideoContextProps | null>(null)
 
-const NewFileForm = ({ defaulImage, setLoadData, setData, imageFlug, videoFlug, albumFlug }: NewFileProps) => {
-    const [image, useImage] = useState<string | null>(defaulImage)
+const NewFileForm = ({ defaulImage, avaFlug, setLoadData, setData, imageFlug, videoFlug, albumFlug }: INewFileProps) => {
+    const [loadedData, useLoadedData] = useState<string | ArrayBuffer | null>(defaulImage)
+    const [dataType, useDataType] = useState<DataTypes>(DataTypes.PHOTO);
 
-    function ConverImageToBase64(event: React.ChangeEvent<HTMLInputElement>) {
-        if (event.currentTarget.files !== null) {
-            const file = event.currentTarget.files[0];
-            const reader = new FileReader();
-
-            reader.onloadend = function () {
-                const base64 = reader.result;
-                useImage(base64 as string)
-            };
-
-            reader.readAsDataURL(file);
-        }
-    }
+    const [metaData, useMetaData] = useState<IMetaData>(DEFAULT_META_DATA);
 
     function ResetData() {
-        setData(undefined)
-        useImage(null)
+        setData(null)
+        useLoadedData(null)
+        useMetaData(DEFAULT_META_DATA);
+    }
+
+    function CheckActiveType(type: DataTypes) {
+        return dataType === type ? 'active' : ''
     }
 
     return (
         <div className="black-window">
             <div className="new-file-form">
                 <div className="new-file-form__downloader" >
-                    {image && <ImageEditor aspect={1} setData={setData} setLoadData={setLoadData} width={600} image={image as string} />}
-                    {!image && <label className="new-file-form__load-img">
-                        <img src={download.src} width={200} alt="Загрузка файла" />
-                        <input name='avatar' type="file" accept=".jpg, .jpeg, .png" onChange={ConverImageToBase64} required />
-                    </label>}
+                    {avaFlug && <AvaContext.Provider value={{ setData: useLoadedData, setLoadData: setLoadData }}>
+                        {loadedData && <ImageEditor aspect={1} setData={setData} setLoadData={setLoadData} width={600} image={loadedData as string} />}
+                        {!loadedData && <LoadData width={200} />}
+                    </AvaContext.Provider>}
+                    {!avaFlug && <ImageContext.Provider value={{ metaData: metaData, updateMetaData: useMetaData, data: loadedData as string, setData: useLoadedData, setLoadData: setLoadData, dataType: dataType }}>
+                        {(dataType === DataTypes.PHOTO) && <NewData />}
+                    </ImageContext.Provider>}
                 </div>
                 <div className="new-file-form__manager">
                     <div className="new-file-form__file-types">
-                        {imageFlug && <button className="new-file-form__file-type">Фото</button>}
-                        {videoFlug && <button className="new-file-form__file-type">Видео</button>}
-                        {albumFlug && <button className="new-file-form__file-type">Альбом</button>}
+                        {!avaFlug &&
+                            <>
+                                {imageFlug && <button className={`new-file-form__file-type ${CheckActiveType(DataTypes.PHOTO)}`} onClick={() => useDataType(DataTypes.PHOTO)}>Фото</button>}
+                                {videoFlug && <button className={`new-file-form__file-type ${CheckActiveType(DataTypes.VIDEO)}`} onClick={() => useDataType(DataTypes.VIDEO)}>Видео</button>}
+                                {albumFlug && <button className={`new-file-form__file-type ${CheckActiveType(DataTypes.ALBUM)}`} onClick={() => useDataType(DataTypes.ALBUM)}>Альбом</button>}
+                            </>
+                        }
                     </div>
                     <button className="new-file-form__btn reset" onClick={ResetData}>Сбросить</button>
                     <button className="new-file-form__btn cancel" onClick={() => setLoadData(false)}>Отмена</button>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
 

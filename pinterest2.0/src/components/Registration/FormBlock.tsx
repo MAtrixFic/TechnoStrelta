@@ -15,8 +15,8 @@ function FormBlock() {
 
     return (
         <>
-            {loadData && <NewFileForm defaulImage={avatarka !== undefined ? avatarka : null} setData={useAvatarka} setLoadData={useLoadData} albumFlug={false} imageFlug={true} videoFlug={false} />}
-            <form className="auth__field" method='POST' action={'http://localhost:3000/albums/'}>
+            {loadData && <NewFileForm defaulImage={avatarka !== undefined ? avatarka : null} avaFlug={true} setData={useAvatarka} setLoadData={useLoadData} albumFlug={false} imageFlug={false} videoFlug={false} />}
+            <form className="auth__field" method='POST' action={'http://localhost:3001/'} encType="multipart/form-data">
                 <h1 className="auth__app-logo">
                     Pinterest 2.0<br />
                     <span>Регистрация</span>
@@ -32,7 +32,7 @@ function FormBlock() {
                     <Link className="auth__bt create" href='/auth/entrance'>
                         Уже есть учетная запись
                     </Link>
-                    <button type='submit' className="auth__bt enter">
+                    <button type='submit' className="auth__bt">
                         Создать
                     </button>
                 </div>

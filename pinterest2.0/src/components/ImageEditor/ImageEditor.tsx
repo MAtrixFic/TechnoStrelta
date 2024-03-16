@@ -6,11 +6,19 @@ import React, { useState, useRef, useEffect } from 'react'
 
 import ButtonFuncLink from './ButtonFuncLink'
 import RotateManager from './RotateManager'
-import { type IImageEditorProps, type IImagePropertiesData, PropertiesName, Sides } from '@/types/imageeditor.type'
+import { type IImageEditorProps, type IImagePropertiesData, PropertiesName, Sides, DEFAULT_IMAGE_DATA, ImageDownScaleAndSet } from '@/types/imageeditor.type'
 import ReactCrop, { type Crop } from 'react-image-crop'
 
 const ImageEditor = ({ aspect, image, width, setData, setLoadData }: IImageEditorProps) => {
-    const imageWidth = width - 25;
+    //настройка параметров изображения
+    const [imageRatio, useImageRatio] = useState<number>(() => {
+        const img = new Image()
+        img.src = image
+        return img.height / img.width
+    })
+    const [imageWidth] = useState<number>(width)
+    // ------------------------------------------------------
+
     function SetImagePosAndScale(ratio: number, side: Sides): [number, number, number, number] {
         switch (side) {
             case Sides.WIDTH:
@@ -22,14 +30,8 @@ const ImageEditor = ({ aspect, image, width, setData, setLoadData }: IImageEdito
 
     let canvasRef = useRef<HTMLCanvasElement>(null)
     const [canvas2D, useCanvas2D] = useState<CanvasRenderingContext2D>();
-    const [imageData, useImageData] = useState<IImagePropertiesData>({
-        [PropertiesName.BRIGHTNESS]: { name: 'яркость', value: 100 },
-        [PropertiesName.CONTRAST]: { name: 'котрастность', value: 100 },
-        [PropertiesName.GRAYSCALE]: { name: 'сероватость', value: 0 },
-        [PropertiesName.SATURATE]: { name: 'насыщенность', value: 100 },
-        [PropertiesName.SEPIA]: { name: 'античность', value: 0 }
-    });
-    const [propertyIndex, usePropertyIndex] = useState<PropertiesName>(() => PropertiesName.BRIGHTNESS)
+    const [imageData, useImageData] = useState<IImagePropertiesData>(DEFAULT_IMAGE_DATA);
+    const [propertyIndex, usePropertyIndex] = useState<PropertiesName>(() => PropertiesName.BRIGHTNESS);
     let sliderRef = useRef<HTMLInputElement>(null);
     const [crop, useCrop] = useState<Crop>({
         unit: 'px',
@@ -39,40 +41,32 @@ const ImageEditor = ({ aspect, image, width, setData, setLoadData }: IImageEdito
         height: 0
     });
 
-    function LoadImage() { 
+    function LoadImage() {
         const img = new Image();
         img.src = image;
         img.onload = () => {
-            let imageRatio = img.height / img.width;
             canvas2D?.clearRect(0, 0, width, width);
             canvas2D?.drawImage(img, ...SetImagePosAndScale(imageRatio, imageRatio > 1 ? Sides.HEIGHT : Sides.WIDTH));
         }
     }
 
     function SaveImage() {
-        const imageData = canvas2D?.getImageData(crop.x, crop.y, crop.width, crop.height)
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
+        let imageData;
+        if (crop.height === 0 || crop.width === 0)
+            imageData = canvas2D?.getImageData(0, 0, width, width)
+        else
+            imageData = canvas2D?.getImageData(crop.x, crop.y, crop.width, crop.height)
+
+        const ctx = document.createElement('canvas').getContext('2d');
         if (imageData !== undefined && ctx !== null) {
-            canvas.width = imageData.width;
-            canvas.height = imageData.height;
-            ctx.putImageData(imageData, 0, 0);
-            var image = new Image();
-            image.src = canvas.toDataURL();
-            setData(image.src);
-            setLoadData(false);
+            ImageDownScaleAndSet(imageData, setData, 1, 'image/png');
+            setLoadData(false)
         }
     }
 
     function SetProperties(makeNumll: boolean, value: number = 100) {
         makeNumll ?
-            useImageData({
-                [PropertiesName.BRIGHTNESS]: { name: 'яркость', value: value },
-                [PropertiesName.CONTRAST]: { name: 'котрастность', value: value },
-                [PropertiesName.GRAYSCALE]: { name: 'сероватость', value: 0 },
-                [PropertiesName.SATURATE]: { name: 'насыщенность', value: value },
-                [PropertiesName.SEPIA]: { name: 'античность', value: 0 }
-            })
+            useImageData(DEFAULT_IMAGE_DATA)
             :
             useImageData({ ...imageData, [propertyIndex]: { name: imageData[propertyIndex].name, value: value } })
     }
@@ -94,6 +88,7 @@ const ImageEditor = ({ aspect, image, width, setData, setLoadData }: IImageEdito
         useCanvas2D(ctx as CanvasRenderingContext2D);
         img.onload = () => {
             let imageRatio = img.height / img.width;
+            useImageRatio(imageRatio)
             if (canvasRef.current !== null) {
                 canvasRef.current.width = width;
                 canvasRef.current.height = width;

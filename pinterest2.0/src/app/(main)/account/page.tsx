@@ -2,6 +2,7 @@ import { NextPage } from 'next'
 import UserAlbum from '@/components/UserAlbum'
 import '@/styles/account.scss'
 import '@/styles/card.scss'
+
 import Image from 'next/image'
 import ai from './ai.jpg'
 

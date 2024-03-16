@@ -2,9 +2,11 @@
 import React, { useState } from 'react'
 import { AlbumTypes } from '@/types/card.type'
 import type { ICards } from '@/types/account.type'
+
 import ChangeAlbumTypeButton from './ChangeAlbumTypeButton'
 import Card from './Card'
-import CreateAlbumLink from './CreateAlbumLink'
+import CreateAlbumLink from './CreateDataButton'
+import NewFileForm from './AddNewFileForm/NewFileForm'
 
 const CARDS: ICards = {
     public: [{
@@ -32,6 +34,7 @@ const CARDS: ICards = {
 
 const UserAlbum = () => {
     const [albumType, useAlbumType] = useState<AlbumTypes>(AlbumTypes.ALL)
+    const [newData, useNewData] = useState<boolean>(false);
 
     function ActiveCheck(type: AlbumTypes): string {
         return albumType === type ? 'active' : '';
@@ -39,6 +42,10 @@ const UserAlbum = () => {
 
     function ChangeAlbumType(type: AlbumTypes) {
         useAlbumType(type);
+    }
+
+    function Plug(data: string){
+        console.log(data);
     }
 
     return (
@@ -75,8 +82,9 @@ const UserAlbum = () => {
                     />
                 </div>
             </div>
+            {newData && <NewFileForm avaFlug={false} setData={Plug} setLoadData={useNewData} defaulImage={null} albumFlug imageFlug videoFlug/>}
             <div className="user-album__list">
-                <CreateAlbumLink />
+                <CreateAlbumLink newData={useNewData} />
                 {albumType !== AlbumTypes.ALL ? CARDS[albumType].map((album, i) => <Card path={album.path} type={album.type} tags={album.tags} title={album.title} key={i} src={album.src} />)
                     :
                     new Array().concat(CARDS.public).concat(CARDS.private).concat(CARDS.collaboration)

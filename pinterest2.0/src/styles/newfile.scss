@@ -4,6 +4,8 @@
     position: absolute;
     width: 100%;
     height: 100%;
+    top: 0;
+    left: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -52,9 +54,9 @@
     height: 100%;
     display: flex;
     justify-content: center;
-    background-color: $lightGrey;
-    border: 2px solid $dark;
-    border-radius: inherit;
+    background-color: #F6FBFF;
+    border: 2px solid $blue;
+    border-radius: 10px;
     align-items: center;
 
     img {
@@ -105,6 +107,9 @@
 }
 
 .new-file-form__file-type {
+    &.active {
+        color: $lightBlue;
+    }
 
     color: $blue;
     font-size: 1.4rem;

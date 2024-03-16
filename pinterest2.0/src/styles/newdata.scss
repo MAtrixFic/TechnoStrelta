@@ -1,0 +1,93 @@
+@import 'empty';
+
+.new-data {
+    min-width: 800px;
+    min-height: 100%;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: 1fr minmax(200px, 300px) minmax(30px, 50px);
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+.new-data__inputs {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, 1fr);
+    gap: 1rem;
+
+    input[type='text'] {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+        padding: 0 1rem;
+        font-size: 1.2rem;
+        font-weight: 550;
+        color: $dark;
+        border: 2px solid $lightGrey;
+        -webkit-box-shadow: 0px 2px 8px 0px rgba(40, 54, 66, 0.2);
+        -moz-box-shadow: 0px 2px 8px 0px rgba(40, 54, 66, 0.2);
+        box-shadow: 0px 2px 8px 0px rgba(40, 54, 66, 0.2);
+
+        &::placeholder {
+            color: $lightGrey;
+        }
+    }
+}
+
+.new-data__bt {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+    font-size: 1.6rem;
+    background-color: $blue;
+    color: white;
+    border-radius: 10px;
+    transition-duration: 0.2s;
+
+    &:hover {
+        background-color: $lightBlue;
+        -webkit-box-shadow: 0px 0px 11px 0px rgba(0, 106, 220, 0.2);
+        -moz-box-shadow: 0px 0px 11px 0px rgba(0, 106, 220, 0.2);
+        box-shadow: 0px 0px 11px 0px rgba(0, 106, 220, 0.2);
+    }
+}
+
+.new-data__btns,
+.new-data__inputs,
+.new-data__load-file {
+    padding: 0 2rem;
+}
+
+.new-data__load-file {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.new-data__image {
+    position: relative;
+    width: fit-content;
+    height: fit-content;
+}
+
+.new-data__photo {
+    object-fit: contain;
+    width: 744px;
+    height: 400px;
+}
+
+.new-data__edit-bt {
+    -webkit-box-shadow: 0px 2px 8px 0px rgba(26, 131, 212, 0.2);
+    -moz-box-shadow: 0px 2px 8px 0px rgba(26, 131, 212, 0.2);
+    box-shadow: 0px 2px 8px 0px rgba(26, 131, 212, 0.2);
+    position: absolute;
+    right: 5%;
+    top: 5%;
+    background-color: white;
+    border-radius: 100%;
+    padding: 1rem;
+}

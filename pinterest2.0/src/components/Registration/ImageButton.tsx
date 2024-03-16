@@ -3,13 +3,13 @@ import React from 'react'
 
 interface ImageButtonProps {
     avatarka: string;
-    setloadData: (state: boolean) => void; 
+    setloadData: (state: boolean) => void;
 }
 
 const ImageButton = ({ avatarka, setloadData }: ImageButtonProps) => {
 
     return (
-        <button onClick={() => setloadData(true)}>
+        <button className='auth__image-block' onClick={() => setloadData(true)}>
             <img className='auth__img ' src={avatarka} alt="avatar" />
         </button>
     )
