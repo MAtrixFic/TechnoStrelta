@@ -3,8 +3,8 @@ import { NextPage } from 'next'
 import { useState } from 'react'
 import '@/styles/album.scss'
 
-import MediaBlock from '@/components/MediaBlock'
-import Toggle from '@/components/Toggle'
+import MediaBlock from '@/components/Account/MediaBlock'
+import Toggle from '@/components/Account/Album/Toggle'
 import AddUserWindow from '@/components/AddUserWindow/AddUserWindow'
 import Link from 'next/link'
 

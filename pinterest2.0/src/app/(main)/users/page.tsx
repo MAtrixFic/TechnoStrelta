@@ -1,7 +1,7 @@
 import { NextPage } from 'next'
 
 import '@/styles/card.scss'
-import UserCard from '@/components/UserCard'
+import UserCard from '@/components/Users/UserCard'
 
 const Page: NextPage = () => {
     return (

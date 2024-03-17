@@ -4,24 +4,30 @@ import React, { useState, createContext } from 'react'
 import '@/styles/newfile.scss'
 
 import ImageEditor from '../ImageEditor/ImageEditor'
-import NewData from './NewData'
+import ImageForm from './ImageForm'
+import VideoForm from '../LoadVideo/VideoForm'
 import LoadData from './LoadData'
 import { IAvaContextProps, IImageContextProps, IVideoContextProps, INewFileProps, IMetaData, DataTypes, DEFAULT_META_DATA } from '@/types/newfileform.type'
 
 export const AvaContext = createContext<IAvaContextProps | null>(null)
 export const ImageContext = createContext<IImageContextProps | null>(null)
-export const IVideoContext = createContext<IVideoContextProps | null>(null)
+export const VideoContext = createContext<IVideoContextProps | null>(null)
 
-const NewFileForm = ({ defaulImage, avaFlug, setLoadData, setData, imageFlug, videoFlug, albumFlug }: INewFileProps) => {
-    const [loadedData, useLoadedData] = useState<string | ArrayBuffer | null>(defaulImage)
+const NewFileForm = ({ defaulVideo, defaulImage, avaFlug, setLoadData, setData, imageFlug, videoFlug, albumFlug }: INewFileProps) => {
+    const [loadedData, useLoadedData] = useState<string | null>(defaulImage)
+    const [loadedVideo, useLoadedVideo] = useState<string | null>(defaulVideo)
     const [dataType, useDataType] = useState<DataTypes>(DataTypes.PHOTO);
-
     const [metaData, useMetaData] = useState<IMetaData>(DEFAULT_META_DATA);
 
     function ResetData() {
-        setData(null)
-        useLoadedData(null)
-        useMetaData(DEFAULT_META_DATA);
+        if (dataType === DataTypes.PHOTO) {
+            useLoadedData(null)
+            setData(null)
+            useMetaData(DEFAULT_META_DATA);
+        }
+        else if (dataType === DataTypes.VIDEO)
+            useLoadedVideo(null)
+
     }
 
     function CheckActiveType(type: DataTypes) {
@@ -32,13 +38,21 @@ const NewFileForm = ({ defaulImage, avaFlug, setLoadData, setData, imageFlug, vi
         <div className="black-window">
             <div className="new-file-form">
                 <div className="new-file-form__downloader" >
-                    {avaFlug && <AvaContext.Provider value={{ setData: useLoadedData, setLoadData: setLoadData }}>
-                        {loadedData && <ImageEditor aspect={1} setData={setData} setLoadData={setLoadData} width={600} image={loadedData as string} />}
-                        {!loadedData && <LoadData width={200} />}
-                    </AvaContext.Provider>}
-                    {!avaFlug && <ImageContext.Provider value={{ metaData: metaData, updateMetaData: useMetaData, data: loadedData as string, setData: useLoadedData, setLoadData: setLoadData, dataType: dataType }}>
-                        {(dataType === DataTypes.PHOTO) && <NewData />}
-                    </ImageContext.Provider>}
+                    {avaFlug &&
+                        <AvaContext.Provider value={{ setData: useLoadedData, setLoadData: setLoadData }}>
+                            {loadedData && <ImageEditor aspect={1} setData={setData} setLoadData={setLoadData} width={600} image={loadedData as string} />}
+                            {!loadedData && <LoadData width={200} />}
+                        </AvaContext.Provider>}
+                    {!avaFlug &&
+                        <>
+                            <ImageContext.Provider value={{ metaData: metaData, updateMetaData: useMetaData, data: loadedData as string, setData: useLoadedData, setLoadData: setLoadData }}>
+                                {(dataType === DataTypes.PHOTO) && <ImageForm />}
+                            </ImageContext.Provider>
+                            <VideoContext.Provider value={{ setData: useLoadedVideo, setLoadData: setLoadData, data: undefined, src: loadedVideo as string }}>
+                                {(dataType === DataTypes.VIDEO) && <VideoForm />}
+                            </VideoContext.Provider>
+                        </>
+                    }
                 </div>
                 <div className="new-file-form__manager">
                     <div className="new-file-form__file-types">

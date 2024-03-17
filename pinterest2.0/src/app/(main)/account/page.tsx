@@ -1,5 +1,5 @@
 import { NextPage } from 'next'
-import UserAlbum from '@/components/UserAlbum'
+import UserAlbum from '@/components/Users/UserAlbum'
 import '@/styles/account.scss'
 import '@/styles/card.scss'
 

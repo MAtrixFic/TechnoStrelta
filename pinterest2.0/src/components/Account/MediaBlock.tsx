@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useRef } from 'react'
-import MediaCell from './MediaCell'
+import MediaCell from './Album/MediaCell'
 
 const MediaBlock = () => {
     const [media, useMedias] = useState<string[]>([])

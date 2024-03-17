@@ -9,6 +9,7 @@ export interface INewFileProps extends IChangeData {
     albumFlug: boolean;
     avaFlug: boolean;
     defaulImage: string | null;
+    defaulVideo: string | null;
 }
 
 export interface IMetaData {
@@ -19,14 +20,13 @@ export interface IMetaData {
 
 export interface IAvaContextProps extends IChangeData { }
 export interface IImageContextProps extends IChangeData {
-    dataType: DataTypes;
     data: string;
     updateMetaData: (data: IMetaData) => void;
     metaData: IMetaData | undefined;
 }
 export interface IVideoContextProps extends IChangeData {
-    dataType: DataTypes;
-    data: ArrayBuffer | Blob;
+    data: File | undefined;
+    src: string
 }
 
 export enum DataTypes {
@@ -34,8 +34,23 @@ export enum DataTypes {
     PHOTO = 'photo',
     ALBUM = 'album',
 }
+
+export enum NoData {
+    DATE = 'Нет даты',
+    LATITUDE = 'Нет широты',
+    LONGITUDE = 'Нет долготы'
+}
 export const DEFAULT_META_DATA = {
-    date: 'Нет даты',
-    latitude: 'Нет широты',
-    longitude: 'Нет долготы',
+    date: NoData.DATE,
+    latitude: NoData.LATITUDE,
+    longitude: NoData.LONGITUDE,
+}
+
+
+export interface ILoadDataProps {
+    width: number;
+}
+
+export interface ILoadVideoFormProps extends ILoadDataProps {
+    updateFile: (data: File) => void;
 }

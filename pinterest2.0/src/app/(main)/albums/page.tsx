@@ -1,7 +1,7 @@
 import { NextPage } from 'next'
 
 import '@/styles/card.scss'
-import Card from '@/components/Card'
+import Card from '@/components/Albums/Card'
 import { AlbumTypes } from '@/types/card.type'
 
 const Page: NextPage = () => {

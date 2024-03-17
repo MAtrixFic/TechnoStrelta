@@ -3,10 +3,10 @@ import React, { useState } from 'react'
 import { AlbumTypes } from '@/types/card.type'
 import type { ICards } from '@/types/account.type'
 
-import ChangeAlbumTypeButton from './ChangeAlbumTypeButton'
-import Card from './Card'
-import CreateAlbumLink from './CreateDataButton'
-import NewFileForm from './AddNewFileForm/NewFileForm'
+import ChangeAlbumTypeButton from '../Account/ChangeAlbumTypeButton'
+import Card from '../Albums/Card'
+import CreateAlbumLink from '../AddNewFileForm/CreateDataButton'
+import NewFileForm from '../AddNewFileForm/NewFileForm'
 
 const CARDS: ICards = {
     public: [{
@@ -82,7 +82,7 @@ const UserAlbum = () => {
                     />
                 </div>
             </div>
-            {newData && <NewFileForm avaFlug={false} setData={Plug} setLoadData={useNewData} defaulImage={null} albumFlug imageFlug videoFlug/>}
+            {newData && <NewFileForm avaFlug={false} setData={Plug} setLoadData={useNewData} defaulVideo={null} defaulImage={null} albumFlug imageFlug videoFlug/>}
             <div className="user-album__list">
                 <CreateAlbumLink newData={useNewData} />
                 {albumType !== AlbumTypes.ALL ? CARDS[albumType].map((album, i) => <Card path={album.path} type={album.type} tags={album.tags} title={album.title} key={i} src={album.src} />)

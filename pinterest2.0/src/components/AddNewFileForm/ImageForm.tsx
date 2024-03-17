@@ -2,16 +2,16 @@ import React, { useContext, useRef, useState, useEffect } from 'react'
 import LoadData from './LoadData'
 import '@/styles/newdata.scss'
 import { ImageContext } from './NewFileForm'
-import { DataTypes } from '@/types/newfileform.type'
 import EditImageBt from './EditImageBt'
 import ImageEditor from '../ImageEditor/ImageEditor'
 
-const NewData = () => {
+const ImageForm = () => {
     const imageContext = useContext(ImageContext)
     const [showEditor, useShowEditor] = useState<boolean>(false)
 
     return (
         <>
+            {/* редактор фото */}
             {(showEditor && imageContext) &&
                 < ImageEditor
                     width={600}
@@ -20,14 +20,15 @@ const NewData = () => {
                     setLoadData={useShowEditor}
                     image={imageContext?.data}
                 />}
+            {/* форма отправки data */}
             {!showEditor && <div className="new-data">
                 <div className="new-data__load-file">
+                    {imageContext?.data === null && <LoadData width={100} />}
                     {imageContext?.data &&
                         <div className="new-data__image">
                             <EditImageBt func={useShowEditor} />
                             <img className='new-data__photo' src={imageContext.data} alt='photo' />
                         </div>}
-                    {imageContext?.data === null && <LoadData width={100} />}
                 </div>
                 <div className="new-data__inputs">
                     <input type="text" name='title' placeholder='Заголовок' />
@@ -45,4 +46,4 @@ const NewData = () => {
     )
 }
 
-export default NewData
+export default ImageForm
