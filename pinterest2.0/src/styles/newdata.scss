@@ -8,6 +8,53 @@
     grid-template-rows: 1fr minmax(200px, 300px) minmax(30px, 50px);
     grid-template-columns: 1fr;
     gap: 2rem;
+
+    &.album {
+        grid-template-rows: 1fr minmax(30px, 50px);
+
+        .new-data__inputs {
+            align-content: center;
+            gap: 2rem;
+        }
+    }
+
+
+}
+
+.new-data__radio {
+    width: fit-content;
+    font-size: 1.4rem;
+    color: $dark;
+    font-weight: 550;
+    position: relative;
+
+    input {
+        display: none;
+    }
+
+
+    &:hover {
+        color: $lightBlue;
+        cursor: pointer;
+    }
+
+    &::after {
+        content: '';
+        background-color: white;
+        border: 4px solid white;
+        outline: 4px solid $lightBlue;
+        position: absolute;
+        height: 20px;
+        width: 20px;
+        top: 0%;
+        right: -30%;
+        border-radius: 100px;
+        padding: 5px;
+    }
+
+    &.active::after {
+        background-color: $lightBlue;
+    }
 }
 
 .new-data__inputs {
@@ -94,7 +141,7 @@
     padding: 1rem;
 }
 
-.new-data__video{
+.new-data__video {
     max-width: 744px;
     max-height: 400px;
 

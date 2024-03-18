@@ -7,6 +7,7 @@ import ImageEditor from '../ImageEditor/ImageEditor'
 import ImageForm from './ImageForm'
 import VideoForm from '../LoadVideo/VideoForm'
 import LoadData from './LoadData'
+import AlbumForm from '../AlbumCreate/AlbumForm'
 import { IAvaContextProps, IImageContextProps, IVideoContextProps, INewFileProps, IMetaData, DataTypes, DEFAULT_META_DATA } from '@/types/newfileform.type'
 
 export const AvaContext = createContext<IAvaContextProps | null>(null)
@@ -51,6 +52,7 @@ const NewFileForm = ({ defaulVideo, defaulImage, avaFlug, setLoadData, setData, 
                             <VideoContext.Provider value={{ setData: useLoadedVideo, setLoadData: setLoadData, data: undefined, src: loadedVideo as string }}>
                                 {(dataType === DataTypes.VIDEO) && <VideoForm />}
                             </VideoContext.Provider>
+                            {(dataType === DataTypes.ALBUM) && <AlbumForm />}
                         </>
                     }
                 </div>

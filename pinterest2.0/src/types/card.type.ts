@@ -1,19 +1,34 @@
 export interface IAlbumCardProps {
-    title: string;
-    src: string;
-    tags: string[];
-    type: AlbumTypes;
-    path: string;
+    private: boolean,
+    view: string,
+    link: string
+    tags: string[]
 }
 
-export enum AlbumTypes {
-    PUBLIC = 'public',
-    COLLABORATION = 'collaboration',
-    PRIVATE = 'private',
-    ALL = 'all'
+interface IDataCardProps {
+    data: string,
+    title: string,
+    tags: string[]
+}
+
+export interface IPhotoCardProps extends IDataCardProps {
+    meta: string,
+    location: string
+}
+
+export interface IVideoCardProps {
+    data: string,
+    title: string,
+    tags: string
+}
+
+export enum ContentType {
+    ALBUM,
+    PHOTO,
+    VIDEO
 }
 
 export enum AlbumTags {
     DATE = '#date',
-    LOCATION = '#lacation',
+    LOCATION = '#location',
 }
