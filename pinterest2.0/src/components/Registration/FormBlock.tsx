@@ -5,7 +5,7 @@ import Link from 'next/link'
 import voidImage from '@/images/void.png'
 
 import ImageButton from '@/components/Registration/ImageButton'
-import NewFileForm from '../AddNewFileForm/NewFileForm';
+import AvatarkaConstructor from './AvatarkaConstructor'
 
 
 function FormBlock() {
@@ -15,7 +15,7 @@ function FormBlock() {
 
     return (
         <>
-            {loadData && <NewFileForm defaulImage={avatarka !== undefined ? avatarka : null} avaFlug={true} setData={useAvatarka} setLoadData={useLoadData} albumFlug={false} imageFlug={false} videoFlug={false} />}
+            {loadData && <AvatarkaConstructor avatarka={avatarka} setAvatarka={useAvatarka} setLoadDate={useLoadData} />}
             <form className="auth__field" method='POST' action={'http://localhost:3001/'} encType="multipart/form-data">
                 <h1 className="auth__app-logo">
                     Pinterest 2.0<br />

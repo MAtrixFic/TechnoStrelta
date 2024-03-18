@@ -1,38 +1,34 @@
 import React, { useState, useRef, useContext } from 'react'
-import { AvaContext, ImageContext, VideoContext } from './NewFileForm';
 import * as ExifReader from 'exifreader';
-import { NoData } from '@/types/newfileform.type';
 import { type ILoadDataProps } from '@/types/newfileform.type';
+import '@/styles/newfile.scss'
 
 
-const LoadData = ({ width }: ILoadDataProps) => {
+const LoadData = ({ width, uploadData }: ILoadDataProps) => {
     const ratio = 268 / 218; //отношение картинки "файл"
-    const getAvaContext = useContext(AvaContext); //контекст для аватарки 
-    const getImageContext = useContext(ImageContext); //контекст для фото
 
-    function GetMetaDataForMetaAndLocation(file: File) {
-        ExifReader.load(file).then(data => {
-            console.log(data)
-            if (getImageContext) {
-                getImageContext.updateMetaData({
-                    date: data.DateTime ? data.DateTime.description : NoData.DATE,
-                    latitude: data.GPSLatitude ? data.GPSLatitude.description : NoData.LATITUDE,
-                    longitude: data.GPSLongitude ? data.GPSLongitude.description : NoData.LONGITUDE
-                })
-            }
-        })
-    }
+    // function GetMetaDataForMetaAndLocation(file: File) {
+    //     ExifReader.load(file).then(data => {
+    //         console.log(data)
+    //         if (getImageContext) {
+    //             getImageContext.updateMetaData({
+    //                 date: data.DateTime ? data.DateTime.description : NoData.DATE,
+    //                 latitude: data.GPSLatitude ? data.GPSLatitude.description : NoData.LATITUDE,
+    //                 longitude: data.GPSLongitude ? data.GPSLongitude.description : NoData.LONGITUDE
+    //             })
+    //         }
+    //     })
+    // }
 
     function ConverImageToBase64(event: React.ChangeEvent<HTMLInputElement>) {
         if (event.currentTarget.files !== null) {
             const file = event.currentTarget.files[0];
             console.log(file);
             const reader = new FileReader();
-            GetMetaDataForMetaAndLocation(file);
+            // GetMetaDataForMetaAndLocation(file);
             reader.onloadend = function () {
                 const base64 = reader.result;
-                getAvaContext?.setData(base64 as string)
-                getImageContext?.setData(base64 as string)
+                uploadData(base64 as string)
             };
 
             reader.readAsDataURL(file);

@@ -74,7 +74,7 @@ export function ImageDownScaleAndSet(_imageData: ImageData, _setData: (data: str
             const reader = new FileReader();
             reader.readAsDataURL(blob);
             reader.onloadend = () => {
-                console.log(reader.result)
+                // console.log(reader.result)
                 _setData(reader.result as string)
             }
         }

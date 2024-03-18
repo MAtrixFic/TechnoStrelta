@@ -5,17 +5,6 @@ export interface IAlbumCardProps {
     tags: string[]
 }
 
-interface IDataCardProps {
-    data: string,
-    title: string,
-    tags: string[]
-}
-
-export interface IPhotoCardProps extends IDataCardProps {
-    meta: string,
-    location: string
-}
-
 export interface IVideoCardProps {
     data: string,
     title: string,

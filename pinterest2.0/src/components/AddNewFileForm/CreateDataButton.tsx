@@ -1,7 +1,9 @@
 import React from 'react'
+import { OperationTypes } from '@/types/newfileform.type';
 
 interface ICreateDataButtonProps {
     newData: (state: boolean) => void;
+    changeOperation: (operation: OperationTypes) => void;
 }
 
 const CreateDataButton = ({ newData }: ICreateDataButtonProps) => {

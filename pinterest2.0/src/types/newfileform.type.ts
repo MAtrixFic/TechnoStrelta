@@ -3,30 +3,56 @@ export interface IChangeData {
     setData: (data: any) => void;
 }
 
-export interface INewFileProps extends IChangeData {
+interface IDataCardProps {
+    data: any,
+    title: string,
+    tags: string[],
+    openEditor: (flag: boolean) => void;
+    setData: (data: IImageProps) => void
+}
+
+export interface IPhotoCardProps extends IDataCardProps {
+    meta: IMetaData | undefined,
+    location: ILocation | undefined
+}
+
+export interface INewFileProps {
+    setLoadData: (state: boolean) => void;
+    setImage: (data: any) => void;
+    setVideo: (data: any) => void;
     imageFlug: boolean;
     videoFlug: boolean;
     albumFlug: boolean;
-    avaFlug: boolean;
-    defaulImage: string | null;
-    defaulVideo: string | null;
+    operationType: OperationTypes;
+    Image: IImageProps | undefined;
+    Video: IVideoProps | undefined;
 }
 
-export interface IMetaData {
-    date?: string;
+export interface ILocation {
     latitude?: string;
     longitude?: string;
 }
 
-export interface IAvaContextProps extends IChangeData { }
-export interface IImageContextProps extends IChangeData {
-    data: string;
-    updateMetaData: (data: IMetaData) => void;
-    metaData: IMetaData | undefined;
+export interface IMetaData {
+    date?: string;
+    city?: string;
 }
-export interface IVideoContextProps extends IChangeData {
-    data: File | undefined;
-    src: string
+
+export interface IImageProps {
+    data: any,
+    title: string | undefined,
+    tags: string[] | undefined,
+    meta: IMetaData | undefined,
+    location: ILocation | undefined
+}
+
+export interface IImageFormProps extends IImageProps, IChangeData {
+}
+
+export interface IVideoProps {
+    data: any,
+    title: string,
+    tags: string[]
 }
 
 export enum DataTypes {
@@ -35,20 +61,14 @@ export enum DataTypes {
     ALBUM = 'album',
 }
 
-export enum NoData {
-    DATE = 'Нет даты',
-    LATITUDE = 'Нет широты',
-    LONGITUDE = 'Нет долготы'
+export enum OperationTypes {
+    UPDATE,
+    CREATE
 }
-export const DEFAULT_META_DATA = {
-    date: NoData.DATE,
-    latitude: NoData.LATITUDE,
-    longitude: NoData.LONGITUDE,
-}
-
 
 export interface ILoadDataProps {
     width: number;
+    uploadData: (data: string) => void;
 }
 
 export interface ILoadVideoFormProps extends ILoadDataProps {

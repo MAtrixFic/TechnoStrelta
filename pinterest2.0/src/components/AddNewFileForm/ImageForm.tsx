@@ -1,40 +1,48 @@
-import React, { useContext, useRef, useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import LoadData from './LoadData'
 import '@/styles/newdata.scss'
-import { ImageContext } from './NewFileForm'
 import EditImageBt from './EditImageBt'
 import ImageEditor from '../ImageEditor/ImageEditor'
+import { IImageFormProps } from '@/types/newfileform.type'
 
-const ImageForm = () => {
-    const imageContext = useContext(ImageContext)
+const ImageForm = ({ setLoadData, setData, data, location, meta, tags, title }: IImageFormProps) => {
     const [showEditor, useShowEditor] = useState<boolean>(false)
+
+    function DeployDatas(data: any) {
+        if (data !== undefined)
+            return data
+        else
+            return ''
+    }
 
     return (
         <>
             {/* редактор фото */}
-            {(showEditor && imageContext) &&
+            {(showEditor && data) &&
                 < ImageEditor
                     width={600}
                     aspect={undefined}
-                    setData={imageContext?.setData as (data: string) => void}
+                    setData={setData}
                     setLoadData={useShowEditor}
-                    image={imageContext?.data}
+                    image={data}
                 />}
             {/* форма отправки data */}
             {!showEditor && <div className="new-data">
                 <div className="new-data__load-file">
-                    {imageContext?.data === null && <LoadData width={100} />}
-                    {imageContext?.data &&
+                    {data ?
                         <div className="new-data__image">
                             <EditImageBt func={useShowEditor} />
-                            <img className='new-data__photo' src={imageContext.data} alt='photo' />
-                        </div>}
+                            <img className='new-data__photo' src={data} alt='photo' />
+                        </div>
+                        :
+                        <LoadData width={200} uploadData={setData}/>
+                    }
                 </div>
                 <div className="new-data__inputs">
-                    <input type="text" name='title' placeholder='Заголовок' />
-                    <input type="text" name='tags' placeholder='Теги' />
-                    <input type="text" name='meta' value={imageContext?.metaData?.date} readOnly placeholder='Мета' />
-                    <input type="text" name='location' value={`${imageContext?.metaData?.latitude}  ${imageContext?.metaData?.longitude}`} readOnly placeholder='Локация' />
+                    <input type="text" defaultValue={DeployDatas(title)} name='title' placeholder='Заголовок' />
+                    <input type="text" defaultValue={DeployDatas(tags)} name='tags' placeholder='Теги' />
+                    <input type="text" name='meta' defaultValue={DeployDatas(meta)} value={''} readOnly placeholder='Мета' />
+                    <input type="text" name='location' defaultValue={DeployDatas(location)} value={''} readOnly placeholder='Локация' />
                 </div>
                 <div className="new-data__btns">
                     <button className="new-data__bt save">
