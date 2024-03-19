@@ -1,3 +1,5 @@
+import { type Ref } from "react";
+
 export interface IChangeData {
     setLoadData: (state: boolean) => void;
     setData: (data: any) => void;
@@ -9,6 +11,11 @@ interface IDataCardProps {
     tags: string[],
     openEditor: (flag: boolean) => void;
     setData: (data: IImageProps) => void
+}
+
+export interface IFormButtonProps {
+    title: string,
+    operation: () => void;
 }
 
 export interface IPhotoCardProps extends IDataCardProps {
@@ -39,14 +46,25 @@ export interface IMetaData {
 }
 
 export interface IImageProps {
-    data: any,
+    data: any | undefined,
     title: string | undefined,
     tags: string[] | undefined,
     meta: IMetaData | undefined,
     location: ILocation | undefined
 }
 
-export interface IImageFormProps extends IImageProps, IChangeData {
+export interface IImageFormProps extends IChangeData {
+    data: IImageProps | undefined
+}
+
+export interface IVideoFormProps extends IChangeData {
+    data: IVideoProps | undefined;
+}
+
+
+export interface ILoadVideoProps {
+    width: number;
+    uploadFile: (file: File, urlFile: string) => void;
 }
 
 export interface IVideoProps {
@@ -69,8 +87,5 @@ export enum OperationTypes {
 export interface ILoadDataProps {
     width: number;
     uploadData: (data: string) => void;
-}
-
-export interface ILoadVideoFormProps extends ILoadDataProps {
-    updateFile: (data: File) => void;
+    uploadMeta: (date: string, latitude: string, longitude: string) => void;
 }

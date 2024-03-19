@@ -4,28 +4,29 @@ import { type ILoadDataProps } from '@/types/newfileform.type';
 import '@/styles/newfile.scss'
 
 
-const LoadData = ({ width, uploadData }: ILoadDataProps) => {
+const LoadData = ({ width, uploadData, uploadMeta }: ILoadDataProps) => {
     const ratio = 268 / 218; //отношение картинки "файл"
 
-    // function GetMetaDataForMetaAndLocation(file: File) {
-    //     ExifReader.load(file).then(data => {
-    //         console.log(data)
-    //         if (getImageContext) {
-    //             getImageContext.updateMetaData({
-    //                 date: data.DateTime ? data.DateTime.description : NoData.DATE,
-    //                 latitude: data.GPSLatitude ? data.GPSLatitude.description : NoData.LATITUDE,
-    //                 longitude: data.GPSLongitude ? data.GPSLongitude.description : NoData.LONGITUDE
-    //             })
-    //         }
-    //     })
-    // }
+    function GetMetaDataForMetaAndLocation(file: File) {
+        let metaData = { date: '', latitude: '', longitude: '' }
+        ExifReader.load(file).then(data => {
+            console.log(data)
+            metaData = {
+                date: data.DateTime ? data.DateTime.description : '',
+                latitude: data.GPSLatitude ? data.GPSLatitude.description : '',
+                longitude: data.GPSLongitude ? data.GPSLongitude.description : ''
+            }
+            uploadMeta(metaData.date, metaData.latitude, metaData.longitude);
+        })
+
+    }
 
     function ConverImageToBase64(event: React.ChangeEvent<HTMLInputElement>) {
         if (event.currentTarget.files !== null) {
             const file = event.currentTarget.files[0];
             console.log(file);
             const reader = new FileReader();
-            // GetMetaDataForMetaAndLocation(file);
+            GetMetaDataForMetaAndLocation(file);
             reader.onloadend = function () {
                 const base64 = reader.result;
                 uploadData(base64 as string)

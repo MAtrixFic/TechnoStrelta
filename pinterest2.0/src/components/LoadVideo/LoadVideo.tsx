@@ -1,10 +1,8 @@
 'use client'
 import React, { useContext } from 'react'
-import { type ILoadVideoFormProps } from '@/types/newfileform.type';
-import { VideoContext } from '../AddNewFileForm/NewFileForm';
+import { type ILoadVideoProps } from '@/types/newfileform.type';
 
-const LoadVideo = ({ width, updateFile }: ILoadVideoFormProps) => {
-    const getVideoContext = useContext(VideoContext)
+const LoadVideo = ({ width, uploadFile }: ILoadVideoProps) => {
     const ratio = 268 / 218; //отношение картинки "файл"
 
     return (
@@ -15,8 +13,7 @@ const LoadVideo = ({ width, updateFile }: ILoadVideoFormProps) => {
             <input type="file" accept="video/*" onChange={async event => {
                 if (event.target.files) {
                     console.log(event.target.files[0])
-                    getVideoContext?.setData(URL.createObjectURL(event.target.files[0]));
-                    updateFile(event.target.files[0]);
+                    uploadFile(event.target.files[0], URL.createObjectURL(event.target.files[0]))
                 }
             }} />
         </label>

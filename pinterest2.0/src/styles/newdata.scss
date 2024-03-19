@@ -105,6 +105,13 @@
     }
 }
 
+.new-data__btns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr;
+    gap: 1rem;
+}
+
 .new-data__btns,
 .new-data__inputs,
 .new-data__load-file {
