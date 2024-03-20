@@ -1,11 +1,14 @@
 import React, { useState } from 'react'
 import { IPhotoCardProps } from '@/types/newfileform.type'
+import { UseDownloader } from 'react-use-downloader/dist/types'
 import Image from 'next/image'
 import '@/styles/datacard.scss'
+import useDownloader from 'react-use-downloader'
 
 
 const ImageEditCard = ({ setData, openEditor, data, title, tags, meta, location }: IPhotoCardProps) => {
     console.log(typeof data, data)
+    const { download } = useDownloader()
 
     return (
         <article className='data-card'>
@@ -22,11 +25,11 @@ const ImageEditCard = ({ setData, openEditor, data, title, tags, meta, location 
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M22.5332 2.82843L27.483 7.77817L23.9474 11.3137L18.9977 6.36396L22.5332 2.82843ZM17.5835 7.77817L3.95746 21.4042L2.30313 28.0082L8.90721 26.3539L22.5332 12.7279L17.5835 7.77817ZM21.119 1.41421C21.9 0.633165 23.1664 0.633165 23.9474 1.41421L28.8972 6.36396C29.6782 7.14501 29.6782 8.41134 28.8972 9.19239L10.3214 27.7681C10.0653 28.0242 9.74451 28.206 9.39319 28.294L2.78912 29.9483C1.32372 30.3154 -0.00400777 28.9877 0.363075 27.5223L2.0174 20.9182C2.10541 20.5669 2.28715 20.246 2.54325 19.99L21.119 1.41421Z" />
                         </svg>
                     </button>
-                    <a href="#" download={data.default.src} className="data-card__btn">
+                    <button onClick={() => download(data.default.src, `${title}.jpg`)} className="data-card__btn">
                         <svg viewBox="0 0 22 23" fill="white" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M10.2929 0.292902L3.92893 6.65686C3.53841 7.04739 3.53841 7.68055 3.92893 8.07108C4.31946 8.4616 4.95262 8.4616 5.34315 8.07108L10 3.41422V17H12V3.41422L16.6569 8.07108C17.0474 8.4616 17.6805 8.4616 18.0711 8.07108C18.4616 7.68055 18.4616 7.04739 18.0711 6.65686L11.7071 0.292902C11.3166 -0.0976219 10.6834 -0.0976219 10.2929 0.292902ZM0 14V19C0 21.2091 1.79086 23 4 23H18C20.2091 23 22 21.2091 22 19V14H20V19C20 20.1046 19.1046 21 18 21H4C2.89543 21 2 20.1046 2 19V14H0Z" />
                         </svg>
-                    </a>
+                    </button>
                 </div>
                 <h4 className='data-card__title'>{title}</h4>
             </div>

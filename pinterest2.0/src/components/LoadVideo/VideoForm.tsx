@@ -1,9 +1,10 @@
 'use client'
-import React, { useContext, useState, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import '@/styles/newdata.scss'
 import LoadVideo from './LoadVideo'
 import { type IVideoFormProps } from '@/types/newfileform.type'
 import FormButton from '../AddNewFileForm/FormButton'
+import { buttonOperations } from '@/services/dataForm.services'
 
 const VideoForm = ({ data, setData, setLoadData }: IVideoFormProps) => {
     const [file, useFile] = useState<File>();
@@ -13,15 +14,6 @@ const VideoForm = ({ data, setData, setLoadData }: IVideoFormProps) => {
         useFile(file);
         setData({ data: urlFile, title: data?.title, tags: data?.tags })
     }
-
-    function ResetImageData() {
-        for (let element of inputsRef.current) {
-            element.value = ''
-        }
-        useFile(undefined)
-        setData(undefined);
-    }
-
 
     return (
         <div className="new-data">
@@ -34,9 +26,9 @@ const VideoForm = ({ data, setData, setLoadData }: IVideoFormProps) => {
                 <input type="text" ref={cur => inputsRef.current[1] = cur as HTMLInputElement} defaultValue={data?.tags} name='tags' placeholder='Теги' />
             </div>
             <div className="new-data__btns">
-                <FormButton title='Отмена' operation={() => setLoadData(false)} />
-                <FormButton title='Сбросить' operation={() => ResetImageData()} />
-                <a href="#" download onClick={(ev) => { ev.preventDefault(); open(data?.data) }}>DownLoad</a>
+                <FormButton title='Отмена' operation={() => buttonOperations.cancel({ resetData: buttonOperations.resetData, setLoadData: setLoadData, data: { inputs: inputsRef, resetLocalData: useFile, resetGlobalData: setData } })} />
+                <FormButton title='Сбросить' operation={() => buttonOperations.resetData({inputs: inputsRef, resetLocalData: useFile, resetGlobalData: setData})} />
+                <FormButton title='Отправить' operation={() => ''} />
             </div>
         </div >
     )

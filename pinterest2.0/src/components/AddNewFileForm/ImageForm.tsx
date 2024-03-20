@@ -8,6 +8,7 @@ import LoadData from './LoadData'
 import FormButton from './FormButton'
 
 import { IImageFormProps } from '@/types/newfileform.type'
+import { buttonOperations } from '@/services/dataForm.services'
 
 const ImageForm = ({ setLoadData, setData, data }: IImageFormProps) => {
     const [showEditor, useShowEditor] = useState<boolean>(false)
@@ -32,14 +33,6 @@ const ImageForm = ({ setLoadData, setData, data }: IImageFormProps) => {
         }
         else
             return ''
-    }
-
-    function ResetImageData() {
-        for (let element of inputsRef.current) {
-            element.value = ''
-        }
-        usePrepImage(undefined)
-        setData(undefined);
     }
 
     function UpdateMeta(date: string, latitude: string, longitude: string) {
@@ -70,7 +63,7 @@ const ImageForm = ({ setLoadData, setData, data }: IImageFormProps) => {
                             <img className='new-data__photo' src={prepImage} alt='photo' />
                         </div>
                         :
-                        <LoadData uploadMeta={UpdateMeta} width={200} uploadData={usePrepImage} />
+                        <LoadData uploadMeta={UpdateMeta} width={100} uploadData={usePrepImage} />
                     }
                 </div>
                 <div className="new-data__inputs">
@@ -80,8 +73,8 @@ const ImageForm = ({ setLoadData, setData, data }: IImageFormProps) => {
                     <input type="text" name='location' defaultValue={DeployDatas(data, 'location')} readOnly placeholder='Локация' ref={cur => inputsRef.current[3] = cur as HTMLInputElement} />
                 </div>
                 <div className="new-data__btns">
-                    <FormButton title='Отмена' operation={() => setLoadData(false)} />
-                    <FormButton title='Сбросить' operation={() => ResetImageData()} />
+                    <FormButton title='Отмена' operation={() => buttonOperations.cancel({ resetData: buttonOperations.resetData, setLoadData: setLoadData, data: { inputs: inputsRef, resetLocalData: usePrepImage, resetGlobalData: setData } })} />
+                    <FormButton title='Сбросить' operation={() => buttonOperations.resetData({ inputs: inputsRef, resetLocalData: usePrepImage, resetGlobalData: setData })} />
                     <FormButton title='Отправить' operation={() => ''} />
                 </div>
             </div>}

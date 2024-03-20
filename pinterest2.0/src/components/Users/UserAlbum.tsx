@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { ContentType } from '@/types/card.type'
 import { IVideoProps, IImageProps } from '@/types/newfileform.type'
@@ -19,6 +19,11 @@ const UserAlbum = () => {
     function CheckActive(_contentType: ContentType) {
         return contentType === _contentType ? 'active' : ''
     }
+
+    useEffect(()=> {
+        const body = document.querySelector('body')
+        newData ? body!.style.overflow = "hidden" : body!.style.overflow = "auto" 
+    }, [newData])
 
     return (
         <div className="user-album">
