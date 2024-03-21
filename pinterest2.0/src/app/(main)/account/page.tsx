@@ -1,5 +1,5 @@
 import { NextPage } from 'next'
-import UserAlbum from '@/components/Users/UserAlbum'
+import UserSpace from '@/components/Users/UserSpace'
 import '@/styles/account.scss'
 import '@/styles/card.scss'
 
@@ -13,7 +13,7 @@ const Page: NextPage = () => {
                 <Image className='user-data__ava' width={256} height={256} alt='аватарка' src={ai.src} />
                 <h4 className='user-data__nick'>Nickname</h4>
             </div>
-            <UserAlbum />
+            <UserSpace />
         </div>
     )
 }

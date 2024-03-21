@@ -1,5 +1,5 @@
 'use client'
-import React, { useContext } from 'react'
+import React from 'react'
 import { type ILoadVideoProps } from '@/types/newfileform.type';
 
 const LoadVideo = ({ width, uploadFile }: ILoadVideoProps) => {
@@ -12,8 +12,14 @@ const LoadVideo = ({ width, uploadFile }: ILoadVideoProps) => {
             </svg>
             <input type="file" accept="video/*" onChange={async event => {
                 if (event.target.files) {
-                    console.log(event.target.files[0])
-                    uploadFile(event.target.files[0], URL.createObjectURL(event.target.files[0]))
+                    console.log(event.target.files[0], event.target.files[0].size / 1024 / 1024)
+                    if (event.target.files[0].size / (2 ** 20) > 30) {
+                        alert("Go fuck! Don't fuck up my storage! min size is 10mb")
+                        event.target.files = null;
+                        event.target.value = '';
+                    }
+                    else
+                        uploadFile(event.target.files[0], URL.createObjectURL(event.target.files[0]))
                 }
             }} />
         </label>

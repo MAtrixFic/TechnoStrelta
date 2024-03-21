@@ -27,7 +27,7 @@ const VideoForm = ({ data, setData, setLoadData }: IVideoFormProps) => {
             </div>
             <div className="new-data__btns">
                 <FormButton title='Отмена' operation={() => buttonOperations.cancel({ resetData: buttonOperations.resetData, setLoadData: setLoadData, data: { inputs: inputsRef, resetLocalData: useFile, resetGlobalData: setData } })} />
-                <FormButton title='Сбросить' operation={() => buttonOperations.resetData({inputs: inputsRef, resetLocalData: useFile, resetGlobalData: setData})} />
+                <FormButton title='Сбросить' operation={() => buttonOperations.resetData({ inputs: inputsRef, resetLocalData: useFile, resetGlobalData: setData })} />
                 <FormButton title='Отправить' operation={() => ''} />
             </div>
         </div >

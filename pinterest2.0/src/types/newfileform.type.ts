@@ -10,7 +10,8 @@ interface IDataCardProps {
     title: string,
     tags: string[],
     openEditor: (flag: boolean) => void;
-    setData: (data: IImageProps) => void
+    setData: (data: any) => void
+    openViewer: (state: boolean) => void
 }
 
 export interface IFormButtonProps {
@@ -21,6 +22,11 @@ export interface IFormButtonProps {
 export interface IPhotoCardProps extends IDataCardProps {
     meta: IMetaData | undefined,
     location: ILocation | undefined
+
+}
+
+export interface IVideoCardProps extends IDataCardProps {
+
 }
 
 export interface INewFileProps {
