@@ -1,18 +1,24 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { IVideoCardProps } from '@/types/newfileform.type'
 import useDownloader from 'react-use-downloader'
 
 
 const VideoEditCard = ({ data, title, tags, openEditor, setData, openViewer }: IVideoCardProps) => {
     const { download } = useDownloader()
+    const [autoPlay, useAutoPlay] = useState<boolean>(false);
+    let videoRef = useRef<HTMLVideoElement>(null);
 
     function SetData() {
         setData({ title: title, tags: tags, data: data.default })
     }
 
+    useEffect(() => {
+        autoPlay ? videoRef.current?.play() : videoRef.current?.pause();
+    }, [autoPlay])
+
     return (
         <article className='data-card'>
-            <video height={256} width={256} src={data.default} />
+            <video height={256} ref={videoRef} src={data.default} preload='auto' loop muted/>
             <div className="data-card__data">
                 <div className="data-card__manager">
                     <button className="data-card__btn">
@@ -34,6 +40,18 @@ const VideoEditCard = ({ data, title, tags, openEditor, setData, openViewer }: I
                         <svg viewBox="0 0 30 30" fill="white" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M28.7803 1.00046L19.7844 0.727855C19.2324 0.711127 18.7713 1.14508 18.7546 1.69711C18.7379 2.24914 19.1718 2.71021 19.7238 2.72694L26.3066 2.92642L15.3146 13.2718C14.9125 13.6503 14.8933 14.2832 15.2718 14.6854C15.6503 15.0875 16.2832 15.1067 16.6854 14.7282L27.6773 4.38282L27.4779 10.9656C27.4611 11.5176 27.8951 11.9787 28.4471 11.9954C28.9991 12.0121 29.4602 11.5782 29.4769 11.0262L29.7495 2.03029C29.7663 1.47826 29.3323 1.01719 28.7803 1.00046ZM17 5.25C17.5523 5.25 18 5.69771 18 6.25C18 6.80228 17.5523 7.25 17 7.25H4C2.89543 7.25 2 8.14543 2 9.25V26C2 27.1046 2.89543 28 4 28H20.75C21.8546 28 22.75 27.1046 22.75 26V13.75C22.75 13.1977 23.1977 12.75 23.75 12.75C24.3023 12.75 24.75 13.1977 24.75 13.75V26C24.75 28.2091 22.9591 30 20.75 30H4C1.79086 30 0 28.2091 0 26V9.25C0 7.04086 1.79086 5.25 4 5.25H17Z" />
                         </svg>
+                    </button>
+                    <button className="data-card__btn" onClick={() => useAutoPlay(prev => !prev)}>
+                        {!autoPlay ?
+                            <svg viewBox="0 0 27 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M25.5 13.4019C27.5 14.5566 27.5 17.4434 25.5 18.5981L4.5 30.7224C2.5 31.8771 -1.50515e-06 30.4338 -1.4042e-06 28.1244L-3.44255e-07 3.87564C-2.43308e-07 1.56624 2.5 0.122865 4.5 1.27757L25.5 13.4019Z" />
+                            </svg>
+                            :
+                            <svg viewBox="0 0 29 36" fill="white" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M2 0C0.895431 0 0 0.895431 0 2V34C0 35.1046 0.89543 36 2 36H8C9.10457 36 10 35.1046 10 34V2C10 0.895431 9.10457 0 8 0H2ZM21 0C19.8954 0 19 0.895431 19 2V34C19 35.1046 19.8954 36 21 36H27C28.1046 36 29 35.1046 29 34V2C29 0.895431 28.1046 0 27 0H21Z" />
+                            </svg>
+
+                        }
                     </button>
                 </div>
                 <h4 className='data-card__title'>{title}</h4>

@@ -68,6 +68,7 @@ const UserSpace = () => {
                         contentType === ContentType.VIDEO ?
                             <>
                                 <VideoEditCard openViewer={useOpenViewer} setData={useVideoData} openEditor={useNewData} title='AK' tags={['home, pc']} data={require("@/videos/am.mp4")} />
+                                <VideoEditCard openViewer={useOpenViewer} setData={useVideoData} openEditor={useNewData} title='Yao Miko' tags={['pinterest']} data={require("@/videos/yao.mp4")} />
                             </>
                             :
                             <>
