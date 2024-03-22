@@ -14,19 +14,23 @@
 }
 
 .content-viewer {
-    padding: 0.5rem;
-    overflow: hidden;
     width: fit-content;
     height: fit-content;
+    padding: 0.5rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
     background-color: white;
     border-radius: 25px;
+    gap: 0.5rem;
+}
+
+.content-viewer__content {
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: start;
-    gap: 1rem;
-
-
+    align-items: stretch;
+    gap: 0.5rem;
     img {
         width: clamp(200px, 50vw, 800px);
         max-height: 800px;

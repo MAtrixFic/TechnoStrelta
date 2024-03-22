@@ -59,10 +59,10 @@ const UserSpace = () => {
                 <div className="user-space__list">
                     {contentType === ContentType.PHOTO ?
                         <>
-                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Vertical Rem' meta={undefined} location={undefined} tags={['beauty', 'sister']} data={require('@/images/remVertical.jpg')} />
-                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Ayanami Rey' meta={undefined} location={undefined} tags={['']} data={require('@/images/ai.jpg')} />
-                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Void Image' meta={undefined} location={undefined} tags={['']} data={require('@/images/void.png')} />
-                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Emiliya' meta={undefined} location={undefined} tags={['']} data={require("@/images/emiliya.jpg")} />
+                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Vertical Rem' meta={undefined} location={{latitude: '26.41241', longitude: '52.212'}} tags={['beauty', 'sister']} data={require('@/images/remVertical.jpg')} />
+                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Ayanami Rey' meta={undefined} location={{latitude: '86.14241', longitude: '36.2'}} tags={['']} data={require('@/images/ai.jpg')} />
+                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Void Image' meta={undefined} location={{latitude: '58.411241', longitude: '40.262'}} tags={['']} data={require('@/images/void.png')} />
+                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Emiliya' meta={undefined} location={{latitude: '56.41241', longitude: '70.2142'}} tags={['']} data={require("@/images/emiliya.jpg")} />
                         </>
                         :
                         contentType === ContentType.VIDEO ?
