@@ -51,7 +51,7 @@ const UserSpace = () => {
                 <button className={`user-space__link ${CheckActive(ContentType.VIDEO)}`} onClick={() => useContentType(ContentType.VIDEO)}>Видео</button>
             </div>
             {openViewer && <ContentViewer imageData={imageData} videoData={videoData} setOpenViewer={useOpenViewer} />}
-            {newData && <NewFileForm setImage={useImageData} setVideo={useVideoData} operationType={OperationTypes.CREATE} setLoadData={useNewData} Video={videoData} Image={imageData} albumFlug imageFlug videoFlug />}
+            {newData && <NewFileForm setImage={useImageData} setVideo={useVideoData} operationType={operationType} setLoadData={useNewData} Video={videoData} Image={imageData} albumFlug imageFlug videoFlug />}
             <div className="user-space__data">
                 <div className="user-space__add-block">
                     <CreateAlbumLink changeOperation={useOperationType} newData={useNewData} />

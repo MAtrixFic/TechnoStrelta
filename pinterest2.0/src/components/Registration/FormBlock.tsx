@@ -6,12 +6,23 @@ import voidImage from '@/images/void.png'
 
 import ImageButton from '@/components/Registration/ImageButton'
 import AvatarkaConstructor from './AvatarkaConstructor'
+import { userschema } from '@/types/input.types'
 
 
 function FormBlock() {
     const [avatarka, useAvatarka] = useState<string | undefined>(undefined)
     const [loadData, useLoadData] = useState<boolean>(false)
 
+    const data = {
+        login: '',
+        email: '',
+        password: ''
+    }
+    const result = userschema.safeParse(data)
+    if (result.success)
+        console.log('success')
+    else
+        console.log('error')
 
     return (
         <>

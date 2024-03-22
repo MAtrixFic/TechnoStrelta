@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@pbe/react-yandex-maps": "^1.2.5",
     "axios": "^1.6.8",
     "exifreader": "^4.21.1",
     "js-base64": "^3.7.7",
@@ -20,7 +21,8 @@
     "react-image-crop": "^11.0.5",
     "react-use-downloader": "^1.2.5",
     "sass": "^1.71.1",
-    "video-metadata-thumbnails": "^1.0.22"
+    "video-metadata-thumbnails": "^1.0.22",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/node": "^20",

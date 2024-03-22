@@ -1,8 +1,7 @@
-import { type Ref } from "react";
-
 export interface IChangeData {
     setLoadData: (state: boolean) => void;
     setData: (data: any) => void;
+    actionType: OperationTypes;
 }
 
 interface IDataCardProps {
