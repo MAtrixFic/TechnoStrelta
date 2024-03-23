@@ -1,3 +1,5 @@
+import { type ContentType } from "./card.type";
+
 export interface IChangeData {
     setLoadData: (state: boolean) => void;
     setData: (data: any) => void;
@@ -11,6 +13,7 @@ interface IDataCardProps {
     openEditor: (flag: boolean) => void;
     setData: (data: any) => void
     openViewer: (state: boolean) => void
+    setNewFileRequest: (data: newFileRequest) => void;
 }
 
 export interface IFormButtonProps {
@@ -24,8 +27,18 @@ export interface IPhotoCardProps extends IDataCardProps {
 
 }
 
-export interface IVideoCardProps extends IDataCardProps {
+export interface IVideoCardProps extends IDataCardProps { }
 
+export interface IMediaBlockProps {
+    title: string;
+}
+
+export type newFileRequest = {
+    video: boolean;
+    image: boolean;
+    album: boolean;
+    contentType: ContentType;
+    reqType: OperationTypes;
 }
 
 export interface INewFileProps {
@@ -35,6 +48,7 @@ export interface INewFileProps {
     imageFlug: boolean;
     videoFlug: boolean;
     albumFlug: boolean;
+    contentType: ContentType;
     operationType: OperationTypes;
     Image: IImageProps | undefined;
     Video: IVideoProps | undefined;
@@ -76,12 +90,6 @@ export interface IVideoProps {
     data: any,
     title: string,
     tags: string[]
-}
-
-export enum DataTypes {
-    VIDEO = 'video',
-    PHOTO = 'photo',
-    ALBUM = 'album',
 }
 
 export enum OperationTypes {

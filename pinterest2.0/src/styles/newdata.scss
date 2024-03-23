@@ -112,6 +112,12 @@
     gap: 1rem;
 }
 
+#not-allowed{
+    &:hover{
+        cursor: not-allowed;
+    }
+}
+
 .new-data__btns,
 .new-data__inputs,
 .new-data__load-file {

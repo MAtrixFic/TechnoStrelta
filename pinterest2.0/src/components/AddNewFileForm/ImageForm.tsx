@@ -42,7 +42,7 @@ const ImageForm = ({ setLoadData, setData, data }: IImageFormProps) => {
             :
             inputsRef.current[3].value = `${latitude} ${longitude}`
     }
-
+    console.log(DeployDatas(data, 'location'))
     return (
         <>
             {/* редактор фото */}
@@ -69,8 +69,8 @@ const ImageForm = ({ setLoadData, setData, data }: IImageFormProps) => {
                 <div className="new-data__inputs">
                     <input type="text" name='title' defaultValue={DeployDatas(data, 'title')} placeholder='Заголовок' ref={cur => inputsRef.current[0] = cur as HTMLInputElement} />
                     <input type="text" name='tags' defaultValue={DeployDatas(data, 'tags')} placeholder='Теги' ref={cur => inputsRef.current[1] = cur as HTMLInputElement} />
-                    <input type="text" name='meta' defaultValue={DeployDatas(data, 'meta')} readOnly placeholder='Мета' ref={cur => inputsRef.current[2] = cur as HTMLInputElement} />
-                    <input type="text" name='location' defaultValue={DeployDatas(data, 'location')} readOnly placeholder='Локация' ref={cur => inputsRef.current[3] = cur as HTMLInputElement} />
+                    <input type="text" id='not-allowed' name='meta' defaultValue={DeployDatas(data, 'meta')} readOnly placeholder='Мета' ref={cur => inputsRef.current[2] = cur as HTMLInputElement} />
+                    <input type="text" id='not-allowed' name='location' defaultValue={data?.meta !== undefined ? `${DeployDatas(data, 'location').latitude} ${DeployDatas(data, 'location').longitude}` : ''} readOnly placeholder='Локация' ref={cur => inputsRef.current[3] = cur as HTMLInputElement} />
                 </div>
                 <div className="new-data__btns">
                     <FormButton title='Отмена' operation={() => buttonOperations.cancel({ resetData: buttonOperations.resetData, setLoadData: setLoadData, data: { inputs: inputsRef, resetLocalData: usePrepImage, resetGlobalData: setData } })} />

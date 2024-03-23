@@ -23,11 +23,11 @@ const Page: NextPage<IAlbumPageRoute> = ({ params }) => {
                     {['MAtrix', 'IamTeslic'].map((author, index) => <Link href={`/users/${author}`} key={index} >{author}</Link>)}
                 </div>
                 <button className="album-manager__add-author" onClick={()=> useAddUser(prev => !prev)}>
-                    Добавить пользователя
+                    Менеджер пользователей
                 </button>
             </div>
             <div className="album-manager__media">
-                <MediaBlock />
+                <MediaBlock title={params.name}/>
             </div>
         </div >
     )

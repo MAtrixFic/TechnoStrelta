@@ -9,23 +9,15 @@
     box-shadow: 0px 0px 11px 0px $shadow;
 }
 
-.main__albums,
-.main__users {
+.main__albums {
     width: 100%;
     height: 100%;
-    display: grid;
-    grid-auto-flow: row;
-    justify-items: center;
-    align-items: center;
-    gap: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
     row-gap: 1rem;
     padding: 3rem 10rem;
-}
-
-.main__users {
-    grid-template-rows: 360px;
-    grid-auto-rows: 360px;
-    grid-template-columns: repeat(4, 1fr);
 }
 
 .card {
@@ -65,7 +57,7 @@
     border-radius: 20px;
 }
 
-.card__infa{
+.card__infa {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -86,41 +78,5 @@
     align-items: center;
     font-weight: 600;
     font-size: 1rem;
-    transition-duration: 0.2s;
-}
-
-.user-card {
-    background-color: transparent;
-    border-radius: 15px;
-    width: 100%;
-    height: 100%;
-    display: grid;
-    grid-template-rows: 300px 60px;
-    transition-duration: 0.2s;
-    overflow: hidden;
-
-    &:hover {
-        transform: scale(1.02);
-    }
-}
-
-.user-card__img {
-    border: 2px solid white;
-    background-color: $lightGrey;
-    border-radius: 15px;
-    height: 300px;
-    text-align: center;
-}
-
-.user-card__title {
-    border: 2px solid white;
-    background-color: white;
-    border-radius: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: $dark;
-    font-size: 1rem;
-    font-weight: 600;
     transition-duration: 0.2s;
 }

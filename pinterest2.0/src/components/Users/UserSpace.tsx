@@ -2,8 +2,7 @@
 import React, { useEffect, useState } from 'react'
 
 import { ContentType } from '@/types/card.type'
-import { IVideoProps, IImageProps } from '@/types/newfileform.type'
-import { OperationTypes } from '@/types/newfileform.type'
+import { IVideoProps, IImageProps, OperationTypes, newFileRequest } from '@/types/newfileform.type'
 import CreateAlbumLink from '../AddNewFileForm/CreateDataButton'
 import NewFileForm from '../AddNewFileForm/NewFileForm'
 import ImageEditCard from '../ContentCards/EditCards/ImageEditCard'
@@ -15,14 +14,19 @@ const UserSpace = () => {
     const [newData, useNewData] = useState<boolean>(false);
     const [openViewer, useOpenViewer] = useState<boolean>(false);
 
-    const [operationType, useOperationType] = useState<OperationTypes>(OperationTypes.CREATE)
-    const [contentType, useContentType] = useState<ContentType>(ContentType.PHOTO);
-
     const [videoData, useVideoData] = useState<IVideoProps | undefined>(undefined);
     const [imageData, useImageData] = useState<IImageProps | undefined>(undefined);
 
+    const [newFileReq, useNewFileReq] = useState<newFileRequest>({
+        video: true,
+        image: true,
+        album: true,
+        contentType: ContentType.PHOTO,
+        reqType: OperationTypes.CREATE
+    })
+
     function CheckActive(_contentType: ContentType) {
-        return contentType === _contentType ? 'active' : ''
+        return newFileReq.contentType === _contentType ? 'active' : ''
     }
 
     useEffect(() => {
@@ -47,29 +51,29 @@ const UserSpace = () => {
     return (
         <div className="user-space">
             <div className="user-space__panel">
-                <button className={`user-space__link ${CheckActive(ContentType.PHOTO)}`} onClick={() => useContentType(ContentType.PHOTO)}>Фото</button>
-                <button className={`user-space__link ${CheckActive(ContentType.ALBUM)} album`} onClick={() => useContentType(ContentType.ALBUM)}>Альбомы</button>
-                <button className={`user-space__link ${CheckActive(ContentType.VIDEO)}`} onClick={() => useContentType(ContentType.VIDEO)}>Видео</button>
+                <button className={`user-space__link ${CheckActive(ContentType.PHOTO)}`} onClick={() => useNewFileReq({ ...newFileReq, contentType: ContentType.PHOTO })}>Фото</button>
+                <button className={`user-space__link ${CheckActive(ContentType.ALBUM)} album`} onClick={() => useNewFileReq({ ...newFileReq, contentType: ContentType.ALBUM })}>Альбомы</button>
+                <button className={`user-space__link ${CheckActive(ContentType.VIDEO)}`} onClick={() => useNewFileReq({ ...newFileReq, contentType: ContentType.VIDEO })}>Видео</button>
             </div>
             {openViewer && <ContentViewer imageData={imageData} videoData={videoData} setOpenViewer={useOpenViewer} />}
-            {newData && <NewFileForm setImage={useImageData} setVideo={useVideoData} operationType={operationType} setLoadData={useNewData} Video={videoData} Image={imageData} albumFlug imageFlug videoFlug />}
+            {newData && <NewFileForm setImage={useImageData} setVideo={useVideoData} operationType={newFileReq.reqType} setLoadData={useNewData} Video={videoData} Image={imageData} albumFlug={newFileReq.album} imageFlug={newFileReq.image} videoFlug={newFileReq.video} contentType={newFileReq.contentType} />}
             <div className="user-space__data">
                 <div className="user-space__add-block">
-                    <CreateAlbumLink changeOperation={useOperationType} newData={useNewData} />
+                    <CreateAlbumLink setNewFileRequest={useNewFileReq} newData={useNewData} />
                 </div>
                 <div className="user-space__list">
-                    {contentType === ContentType.PHOTO ?
+                    {newFileReq.contentType === ContentType.PHOTO ?
                         <>
-                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Vertical Rem' meta={undefined} location={{ latitude: '26.41241', longitude: '52.212' }} tags={['beauty', 'sister', 'anime']} data={require('@/images/remVertical.jpg')} />
-                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Ayanami Rey' meta={undefined} location={{ latitude: '86.14241', longitude: '36.2' }} tags={['anime', 'blue haired']} data={require('@/images/ai.jpg')} />
-                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Void Image' meta={undefined} location={{ latitude: '58.411241', longitude: '40.262' }} tags={['anime', 'no image']} data={require('@/images/void.png')} />
-                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Emiliya' meta={undefined} location={{ latitude: '56.41241', longitude: '70.2142' }} tags={['anime', 're:Zero']} data={require("@/images/emiliya.jpg")} />
+                            <ImageEditCard setNewFileRequest={useNewFileReq} openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Vertical Rem' meta={undefined} location={{ latitude: '26.41241', longitude: '52.212' }} tags={['beauty', 'sister', 'anime']} data={require('@/images/remVertical.jpg')} />
+                            <ImageEditCard setNewFileRequest={useNewFileReq} openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Ayanami Rey' meta={undefined} location={{ latitude: '86.14241', longitude: '36.2' }} tags={['anime', 'blue haired']} data={require('@/images/ai.jpg')} />
+                            <ImageEditCard setNewFileRequest={useNewFileReq} openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Void Image' meta={undefined} location={{ latitude: '58.411241', longitude: '40.262' }} tags={['anime', 'no image']} data={require('@/images/void.png')} />
+                            <ImageEditCard setNewFileRequest={useNewFileReq} openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Emiliya' meta={undefined} location={{ latitude: '56.41241', longitude: '70.2142' }} tags={['anime', 're:Zero']} data={require("@/images/emiliya.jpg")} />
                         </>
                         :
-                        contentType === ContentType.VIDEO ?
+                        newFileReq.contentType === ContentType.VIDEO ?
                             <>
-                                <VideoEditCard openViewer={useOpenViewer} setData={useVideoData} openEditor={useNewData} title='AK' tags={['home', 'pc']} data={require("@/videos/am.mp4")} />
-                                <VideoEditCard openViewer={useOpenViewer} setData={useVideoData} openEditor={useNewData} title='Yao Miko' tags={['pinterest']} data={require("@/videos/yao.mp4")} />
+                                <VideoEditCard setNewFileRequest={useNewFileReq} openViewer={useOpenViewer} setData={useVideoData} openEditor={useNewData} title='AK' tags={['home', 'pc']} data={require("@/videos/am.mp4")} />
+                                <VideoEditCard setNewFileRequest={useNewFileReq} openViewer={useOpenViewer} setData={useVideoData} openEditor={useNewData} title='Yao Miko' tags={['pinterest']} data={require("@/videos/yao.mp4")} />
                             </>
                             :
                             <>

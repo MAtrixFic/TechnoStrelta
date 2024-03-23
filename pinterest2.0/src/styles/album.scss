@@ -159,6 +159,7 @@
     @include flex(center, center);
     border: 2px solid $lightGrey;
     transition-duration: 0.2s;
+    background-color: transparent;
 
     input[type='file'] {
         display: none;

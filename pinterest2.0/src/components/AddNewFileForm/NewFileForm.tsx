@@ -9,13 +9,13 @@ import ImageForm from './ImageForm'
 import VideoForm from '../LoadVideo/VideoForm'
 import AlbumForm from '../AlbumCreate/AlbumForm'
 
-import { INewFileProps, DataTypes } from '@/types/newfileform.type'
+import { INewFileProps } from '@/types/newfileform.type'
+import { ContentType } from '@/types/card.type'
 
+const NewFileForm = ({ contentType, setImage, setVideo, Video, Image, setLoadData, imageFlug, videoFlug, albumFlug, operationType }: INewFileProps) => {
+    const [dataType, useDataType] = useState<ContentType>(contentType);
 
-const NewFileForm = ({ setImage, setVideo, Video, Image, setLoadData, imageFlug, videoFlug, albumFlug, operationType }: INewFileProps) => {
-    const [dataType, useDataType] = useState<DataTypes>(DataTypes.PHOTO);
-
-    function CheckActiveType(type: DataTypes) {
+    function CheckActiveType(type: ContentType) {
         return dataType === type ? 'active' : ''
     }
 
@@ -23,15 +23,15 @@ const NewFileForm = ({ setImage, setVideo, Video, Image, setLoadData, imageFlug,
         <div className="black-window">
             <div className="new-file-form">
                 <div className="new-file-form__downloader" >
-                    {(dataType === DataTypes.PHOTO) && <ImageForm actionType={operationType} setData={setImage} setLoadData={setLoadData} data={Image} />}
-                    {(dataType === DataTypes.VIDEO) && <VideoForm actionType={operationType} setData={setVideo} setLoadData={setLoadData} data={Video} />}
-                    {(dataType === DataTypes.ALBUM && operationType !== OperationTypes.UPDATE) && <AlbumForm />}
+                    {(dataType === ContentType.PHOTO) && <ImageForm actionType={operationType} setData={setImage} setLoadData={setLoadData} data={Image} />}
+                    {(dataType === ContentType.VIDEO) && <VideoForm actionType={operationType} setData={setVideo} setLoadData={setLoadData} data={Video} />}
+                    {(dataType === ContentType.ALBUM && operationType !== OperationTypes.UPDATE) && <AlbumForm />}
                 </div>
                 <div className="new-file-form__manager">
                     <div className="new-file-form__file-types">
-                        {imageFlug && <button className={`new-file-form__file-type ${CheckActiveType(DataTypes.PHOTO)}`} onClick={() => useDataType(DataTypes.PHOTO)}>Фото</button>}
-                        {videoFlug && <button className={`new-file-form__file-type ${CheckActiveType(DataTypes.VIDEO)}`} onClick={() => useDataType(DataTypes.VIDEO)}>Видео</button>}
-                        {albumFlug && <button className={`new-file-form__file-type ${CheckActiveType(DataTypes.ALBUM)}`} onClick={() => useDataType(DataTypes.ALBUM)}>Альбом</button>}
+                        {imageFlug && <button className={`new-file-form__file-type ${CheckActiveType(ContentType.PHOTO)}`} onClick={() => useDataType(ContentType.PHOTO)}>Фото</button>}
+                        {videoFlug && <button className={`new-file-form__file-type ${CheckActiveType(ContentType.VIDEO)}`} onClick={() => useDataType(ContentType.VIDEO)}>Видео</button>}
+                        {albumFlug && <button className={`new-file-form__file-type ${CheckActiveType(ContentType.ALBUM)}`} onClick={() => useDataType(ContentType.ALBUM)}>Альбом</button>}
                     </div>
                 </div>
             </div>
