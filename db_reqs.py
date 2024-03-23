@@ -10,6 +10,8 @@ import random
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import uuid
+from PIL import Image
 
 
 dotenv.load_dotenv()
@@ -52,7 +54,7 @@ def create_tables():
                     CREATE TABLE IF NOT EXISTS Medias(
                       id serial primary key,
                       title TEXT,
-                      media_base64 TEXT,
+                      uuid TEXT,
                       coordinates TEXT
                     );
                     
@@ -165,6 +167,14 @@ def get_usernames_db():
     return resp
 
 
+def get_emails_db():
+    curs = conn.cursor()
+    curs.execute('SELECT email FROM Users')
+    resp = [i[0] for i in curs.fetchall()]
+    curs.close()
+    return resp
+
+
 def check_entrance(username, password):
     if username in get_usernames_db():
         user = get_user(username)
@@ -177,7 +187,7 @@ def check_entrance(username, password):
 
 
 def add_user(username, password, region, mail, avatar):
-    if username not in get_usernames_db():
+    if username not in get_usernames_db() and mail not in get_emails_db():
         curs = conn.cursor()
         avatar_id = add_avatar(avatar)
         curs.execute(f'INSERT INTO Users(username, pass_hash, region, email, avatar_id) '
@@ -258,10 +268,10 @@ def send_confirm_email(token):
         return False
 
 
-def add_avatar(file):
+def add_avatar(uid):
     try:
         curs = conn.cursor()
-        curs.execute(f'INSERT INTO Medias (media_base64) VALUES(\'{file}\') RETURNING id')
+        curs.execute(f'INSERT INTO Medias (uuid) VALUES(\'{uid}\') RETURNING id')
         resp = curs.fetchall()
         conn.commit()
         curs.close()
@@ -323,12 +333,12 @@ def add_tag_to_media_db(media_id, tag):
         return False
 
 
-def add_media_to_db(file, tags, metadata, coords, title, username_id):
+def add_media_to_db(uid, tags, metadata, coords, title, username_id):
     try:
         metadata_id = add_metadata_to_db(metadata, username_id)
         curs = conn.cursor()
-        curs.execute(f'INSERT INTO Medias (media_base64, metadata_id, coordinates, title) VALUES '
-                     f'(\'{file}\', {metadata_id}, \'{coords}\', \'{title}\') RETURNING id')
+        curs.execute(f'INSERT INTO Medias (uuid, metadata_id, coordinates, title) VALUES '
+                     f'(\'{uid}\', {metadata_id}, \'{coords}\', \'{title}\') RETURNING id')
         media_id = curs.fetchall()[0][0]
         conn.commit()
         for i in tags:
@@ -506,10 +516,10 @@ def is_media_in_albums(media_id):
     return resp[0][0]
 
 
-def update_media_db(media_id, new_file):
+def update_media_db(media_id, new_uid):
     try:
         curs = conn.cursor()
-        curs.execute(f'UPDATE medias SET file = \'{new_file}\' WHERE id = {media_id}')
+        curs.execute(f'UPDATE medias SET uuid = \'{new_uid}\' WHERE id = {media_id}')
         conn.commit()
         curs.close()
         return True
@@ -532,10 +542,10 @@ def check_access_media(media_id, user_id):
 
 def delete_tag_from_media_db(media_id, tag):
     try:
-        if check_for_tag_in_media(tag):
-            curs = conn.cursor()
-            curs.execute(f'SELECT id FROM tags WHERE title = \'{tag}\'')
-            tag_id = curs.fetchall()
+        curs = conn.cursor()
+        curs.execute(f'SELECT id FROM tags WHERE title = \'{tag}\'')
+        tag_id = curs.fetchall()
+        if check_for_tag_in_media(media_id, tag_id):
             curs.execute(f'DELETE FROM mediatags WHERE media_id = {media_id} AND tag_id = {tag_id}')
             conn.commit()
         return True
@@ -556,3 +566,21 @@ def delete_media_db(media_id):
         return True
     except:
         return False
+
+def get_tags_db():
+    try:
+        curs = conn.cursor()
+        curs.execute(f'SELECT row_to_json(tags) FROM tags')
+        resp = curs.fetchall()
+        return [i[0] for i in resp]
+    except:
+        return False
+
+
+def add_file_to_server(file):
+    # file = request.files['file']
+    uid = str(uuid.uuid1())
+    new_file = Image.open(file)
+    new_file.save('medias/' + uid + file.filename[-4:])
+    new_file.close()
+    return uid

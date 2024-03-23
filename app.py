@@ -28,12 +28,13 @@ def auth_register():
     password = resp['password']
     region = resp['region']
     mail = resp['email']
-    avatar = resp['avatar']
-    token = add_user(username, password, region, mail, avatar)
+    avatar = request.files['avatar']
+    uid = add_file_to_server(avatar)
+    token = add_user(username, password, region, mail, uid)
     if token:
         return make_response({'token': token}, 200)
     else:
-        return make_response({'reason': 'Пользователь с таким username уже существует'}, 409)
+        return make_response({'reason': 'Пользователь с таким username или email уже существует'}, 409)
 
 
 @app.route('/api/auth/generateConfirmationCode', methods=['POST'])
@@ -43,21 +44,22 @@ def confirm_email():
     decoded_token = check_token(token)
     if decoded_token:
         generate_confirmation_code(decoded_token)
-        return 200
-    else:
-        return make_response({'reason': 'Недействительный токен'}, 403)
-
-
-@app.route('/api/auth/sendConfirmationCode', methods=['POST'])
-def send_confirmation_code():
-    resp = dict(request.form)
-    token = resp['token']
-    decoded_token = check_token(token)
-    if decoded_token:
         send_confirm_email(decoded_token)
-        return make_response({'status': 'Success 200'}, 200)
+        return make_response({'status': 'Success'}, 200)
     else:
         return make_response({'reason': 'Недействительный токен'}, 403)
+
+
+# @app.route('/api/auth/sendConfirmationCode', methods=['POST'])
+# def send_confirmation_code():
+#     resp = dict(request.form)
+#     token = resp['token']
+#     decoded_token = check_token(token)
+#     if decoded_token:
+#         send_confirm_email(decoded_token)
+#         return make_response({'status': 'Success 200'}, 200)
+#     else:
+#         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
 @app.route('/api/auth/checkConfirmationCode', methods=['POST'])
@@ -68,7 +70,7 @@ def check_confirm_code():
     decoded_token = check_token(token)
     if decoded_token:
         if check_confirmation_code(decoded_token, confirm_code):
-            return 200
+            return make_response({'status': 'Success'}, 200)
         else:
             return make_response({'reason': 'Неверный код либо срок действия кода истек'}, 400)
     else:
@@ -81,7 +83,9 @@ def add_media():
     token = resp['token']
     decoded_token = check_token(token)
     if decoded_token:
-        file = resp['file']
+        file = request.files['file']
+        uid = add_file_to_server(file)
+        # file = resp['file']
         title = resp['title']
         tags = loads(resp['tags'])
         metadata = loads(resp['metadata'])
@@ -90,13 +94,13 @@ def add_media():
         if 'gallery_id' in resp:
             gallery_id = resp['gallery_id']
             if check_access_gallery(username_id, gallery_id):
-                add_media_to_gallery(file, tags, metadata, coords, title, username_id, gallery_id)
+                add_media_to_gallery(uid, tags, metadata, coords, title, username_id, gallery_id)
             else:
                 return make_response({'reason': "У пользователя нет доступа к данной галерее"}, 403)
         else:
             album_id = resp['album_id']
             if check_access_album(username_id, album_id):
-                add_media_to_album(file, tags, metadata, coords, title, username_id, album_id)
+                add_media_to_album(uid, tags, metadata, coords, title, username_id, album_id)
             else:
                 return make_response({'reason': "У пользователя нет доступа к данному альбому"}, 403)
         return make_response({'status': 'Success 201'}, 201)
@@ -110,7 +114,7 @@ def create_album():
     token = resp['token']
     decoded_token = check_token(token)
     if decoded_token:
-        username_id = resp['username_id']
+        username_id = decoded_token['id']
         title = resp['title']
         isPublic = resp['isPublic']
         if isPublic == 'true':
@@ -257,6 +261,36 @@ def delete_media():
         return make_response({'reason': 'Неизвестный id медиа, либо у вас нет к нему доступа'})
     else:
         return make_response({'reason': 'Недействительный токен'}, 403)
+
+
+# @app.route('/api/media/addFile', methods=['POST'])
+# def add_file():
+#     resp = dict(request.form)
+#     token = resp['token']
+#     decoded_token = check_token(token)
+#     if decoded_token:
+#         uid = uuid.uuid1()
+#         file = request.files['file']
+#
+#     else:
+#         return make_response({'reason': 'Недействительный токен'}, 403)
+#
+#
+# @app.route('/api/media/addData')
+# def add_file_data():
+#     pass
+
+
+@app.route('/api/media/getTags')
+def get_tags():
+    tags = get_tags_db()
+    if tags is not False:
+        return make_response(tags, 200)
+    else:
+        return make_response({'reason': 'Я хз лол, ошибка какая-то'}, 500)
+
+
+
 
 
 if __name__ == '__main__':
