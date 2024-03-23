@@ -17,13 +17,16 @@ from PIL import Image
 dotenv.load_dotenv()
 
 # print(os.getenv('PG_DATABASE'), os.getenv('PG_USERNAME'), os.getenv('PG_PASSWORD'), os.getenv('PG_PORT'))
-if os.getenv('huynya'):
-    pg_host = 'localhost'
-else:
-    pg_host = 'postgres'
+
+# if os.getenv('huynya'):
+#     pg_host = 'localhost'
+# else:
+#     pg_host = 'postgres'
+pg_host = os.getenv('PG_HOST')
 conn = psycopg2.connect(database=os.getenv('PG_DATABASE'), user=os.getenv('PG_USERNAME'),
                         password=os.getenv('PG_PASSWORD'), host=pg_host,
                         port=os.getenv('PG_PORT'))
+
 
 def create_tables():
     curs = conn.cursor()
@@ -31,8 +34,7 @@ def create_tables():
                       id serial primary key,
                       username TEXT UNIQUE,
                       email TEXT UNIQUE,
-                      pass_hash TEXT,
-                      region TEXT
+                      pass_hash TEXT
                     );
                     
                     CREATE TABLE IF NOT EXISTS Gallerys(
@@ -186,13 +188,13 @@ def check_entrance(username, password):
         return False
 
 
-def add_user(username, password, region, mail, avatar):
+def add_user(username, password, mail, avatar):
     if username not in get_usernames_db() and mail not in get_emails_db():
         curs = conn.cursor()
         avatar_id = add_avatar(avatar)
-        curs.execute(f'INSERT INTO Users(username, pass_hash, region, email, avatar_id) '
+        curs.execute(f'INSERT INTO Users(username, pass_hash, email, avatar_id) '
                      f'VALUES(\'{username}\', \'{str(hashpw(bytes(password, encoding="UTF-8"), salt))[2:-1]}\', '
-                     f'\'{region}\', \'{mail}\', {avatar_id})')
+                     f'\'{mail}\', {avatar_id})')
         conn.commit()
         curs.execute(f'INSERT INTO Gallerys DEFAULT VALUES RETURNING id')
         conn.commit()
@@ -417,7 +419,7 @@ def check_access_gallery(username_id, gallery_id):
     curs.execute(f'SELECT gallery_id FROM users WHERE id = {username_id}')
     resp = curs.fetchall()
     curs.close()
-    if resp[0][0] == int(gallery_id):
+    if resp != [] and resp[0][0] == int(gallery_id):
         return True
     else:
         return False
@@ -516,10 +518,15 @@ def is_media_in_albums(media_id):
     return resp[0][0]
 
 
-def update_media_db(media_id, new_uid):
+def update_media_db(media_id, new_uid, new_meta, new_coords, new_tags, new_title):
     try:
         curs = conn.cursor()
-        curs.execute(f'UPDATE medias SET uuid = \'{new_uid}\' WHERE id = {media_id}')
+        new_meta_id = add_metadata_to_db(new_meta)
+        curs.execute(f'UPDATE medias SET uuid = \'{new_uid}\', metadatas_id = {new_meta_id}, '
+                     f'coordinates = \'{new_coords}\', title = \'{new_title}\' WHERE id = {media_id}')
+        curs.execute(f'DELETE FROM tags WHERE media_id = {media_id}')
+        for i in new_tags:
+            add_tag_to_media_db(media_id, i)
         conn.commit()
         curs.close()
         return True
@@ -584,3 +591,27 @@ def add_file_to_server(file):
     new_file.save('medias/' + uid + file.filename[-4:])
     new_file.close()
     return uid
+
+
+def add_video_to_gallery(file, tags, title, username_id, gallery_id):
+    try:
+        media_id = add_media_to_db(file, tags, title, username_id)
+        curs = conn.cursor()
+        curs.execute(f'INSERT INTO gallerymedias (gallery_id, media_id) VALUES ({gallery_id}, {media_id})')
+        conn.commit()
+        curs.close()
+        return True
+    except:
+        return False
+
+
+def add_video_to_album(file, tags, title, username_id, album_id):
+    try:
+        media_id = add_media_to_db(file, tags, title, username_id)
+        curs = conn.cursor()
+        curs.execute(f'INSERT INTO albummedias (album_id, media_id) VALUES ({album_id}, {media_id})')
+        conn.commit()
+        curs.close()
+        return True
+    except:
+        return False

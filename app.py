@@ -1,11 +1,7 @@
-import os
-from extension import app, pg_host
 from flask import jsonify, make_response, session, request
 from dotenv import load_dotenv
 load_dotenv()
 from db_reqs import *
-import smtplib
-create_tables()
 from json import loads
 
 
@@ -26,11 +22,10 @@ def auth_register():
     resp = dict(request.form)
     username = resp['username']
     password = resp['password']
-    region = resp['region']
     mail = resp['email']
     avatar = request.files['avatar']
     uid = add_file_to_server(avatar)
-    token = add_user(username, password, region, mail, uid)
+    token = add_user(username, password, mail, uid)
     if token:
         return make_response({'token': token}, 200)
     else:
@@ -77,8 +72,8 @@ def check_confirm_code():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/add', methods=['POST'])
-def add_media():
+@app.route('/api/media/add/photo', methods=['POST'])
+def add_media_photo():
     resp = dict(request.form)
     token = resp['token']
     decoded_token = check_token(token)
@@ -91,18 +86,47 @@ def add_media():
         metadata = loads(resp['metadata'])
         coords = resp['coordinates']
         username_id = decoded_token['id']
-        if 'gallery_id' in resp:
-            gallery_id = resp['gallery_id']
-            if check_access_gallery(username_id, gallery_id):
-                add_media_to_gallery(uid, tags, metadata, coords, title, username_id, gallery_id)
-            else:
-                return make_response({'reason': "У пользователя нет доступа к данной галерее"}, 403)
-        else:
+        if 'album_id' in resp:
             album_id = resp['album_id']
             if check_access_album(username_id, album_id):
                 add_media_to_album(uid, tags, metadata, coords, title, username_id, album_id)
             else:
                 return make_response({'reason': "У пользователя нет доступа к данному альбому"}, 403)
+        else:
+            gallery_id = get_user(username_id)['gallery_id']
+            if check_access_gallery(username_id, gallery_id):
+                add_media_to_gallery(uid, tags, metadata, coords, title, username_id, gallery_id)
+            else:
+                return make_response({'reason': "У пользователя нет доступа к данной галерее"}, 403)
+        return make_response({'status': 'Success 201'}, 201)
+    else:
+        return make_response({'reason': 'Недействительный токен'}, 403)
+
+
+@app.route('/api/media/add/video', methods=['POST'])
+def add_media_video():
+    resp = dict(request.form)
+    token = resp['token']
+    decoded_token = check_token(token)
+    if decoded_token:
+        file = request.files['file']
+        uid = add_file_to_server(file)
+        # file = resp['file']
+        title = resp['title']
+        tags = loads(resp['tags'])
+        username_id = decoded_token['id']
+        if 'album_id' in resp:
+            album_id = resp['album_id']
+            if check_access_album(username_id, album_id):
+                add_video_to_album(uid, tags, title, username_id, album_id)
+            else:
+                return make_response({'reason': "У пользователя нет доступа к данному альбому"}, 403)
+        else:
+            gallery_id = get_user(username_id)['gallery_id']
+            if check_access_gallery(username_id, gallery_id):
+                add_video_to_gallery(uid, tags, title, username_id, gallery_id)
+            else:
+                return make_response({'reason': "У пользователя нет доступа к данной галерее"}, 403)
         return make_response({'status': 'Success 201'}, 201)
     else:
         return make_response({'reason': 'Недействительный токен'}, 403)
@@ -179,7 +203,7 @@ def rename_album():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/deleteAlbum', methods=['DELETE'])
+@app.route('/api/media/deleteAlbum', methods=['POST'])
 def delete_album():
     resp = dict(request.form)
     token = resp['token']
@@ -205,10 +229,15 @@ def update_media():
         media_id = resp['media_id']
         user_id = decoded_token['id']
         new_file = resp['new_file']
+        new_uid = add_file_to_server(new_file)
+        new_meta = resp['new_meta']
+        new_coords = resp['new_coords']
+        new_tags = resp['new_tags']
+        new_title = resp['new_title']
         if check_access_media(media_id, user_id):
-            if update_media_db(media_id, new_file):
+            if update_media_db(media_id, new_uid, new_meta, new_coords, new_tags, new_title):
                 return make_response({'status': 'Success 200'}, 200)
-        return make_response({'reason': 'Неизвестный id медиа, либо у вас нет к нему доступа'})
+        return make_response({'reason': 'Неизвестный id медиа,   либо у вас нет к нему доступа'}, 403)
     else:
         return make_response({'reason': 'Недействительный токен'}, 403)
 
@@ -247,7 +276,7 @@ def delete_tag_from_media():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/deleteMedia', methods=['DELETE'])
+@app.route('/api/media/deleteMedia', methods=['PATCH'])
 def delete_media():
     resp = dict(request.form)
     token = resp['token']
@@ -290,8 +319,7 @@ def get_tags():
         return make_response({'reason': 'Я хз лол, ошибка какая-то'}, 500)
 
 
-
-
-
 if __name__ == '__main__':
+    create_tables()
+    add_user('yellowMonkey', 'password', 'UAE', 'kek.mitroshin@ya.ru', )
     app.run(host=os.getenv('SERVER_HOST'), port=os.getenv('SERVER_PORT'))
