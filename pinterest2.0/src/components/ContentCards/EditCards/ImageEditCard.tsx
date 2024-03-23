@@ -39,7 +39,10 @@ const ImageEditCard = ({ setData, openEditor, openViewer, data, title, tags, met
                         </svg>
                     </button>
                 </div>
-                <h4 className='data-card__title'>{title}</h4>
+                <div className="data-card__infa">
+                    {tags[0] !== '' && <span className='data-card__tags'>{...tags.map(tag => `#${tag} `)}</span>}
+                    <h4 className='data-card__title'>{title}</h4>
+                </div>
             </div>
         </article>
     )

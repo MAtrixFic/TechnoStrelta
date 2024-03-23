@@ -19,16 +19,18 @@
         -moz-box-shadow: 0px 0px 8px 2px rgba(70, 105, 131, 0.2);
         box-shadow: 0px 0px 8px 2px rgba(70, 105, 131, 0.2);
     }
+
     animation: cardsBorning 1s backwards;
 }
 
 @keyframes cardsBorning {
-        from{
-            opacity: 0;
-        }
-        to{
-            opacity: 1;
-        }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .data-card__data {
@@ -67,6 +69,22 @@
         width: 30px;
         height: 30px;
     }
+}
+
+.data-card__infa {
+    overflow: hidden;
+    max-height: 100px;
+    min-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+}
+
+.data-card__tags {
+    font-size: 1rem;
+    color: rgba(white, 0.8);
+    font-weight: 500;
 }
 
 .data-card__title {

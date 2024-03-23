@@ -1,6 +1,6 @@
 export interface IAlbumCardProps {
-    private: boolean,
-    view: string,
+    src: any,
+    title: string
     link: string
     tags: string[]
 }

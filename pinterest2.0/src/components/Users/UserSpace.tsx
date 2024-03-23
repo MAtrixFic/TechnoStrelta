@@ -9,6 +9,7 @@ import NewFileForm from '../AddNewFileForm/NewFileForm'
 import ImageEditCard from '../ContentCards/EditCards/ImageEditCard'
 import VideoEditCard from '../ContentCards/EditCards/VideoEditCard'
 import ContentViewer from '../ContentViewer/ContentViewer'
+import Card from '../Albums/AlbumCard'
 
 const UserSpace = () => {
     const [newData, useNewData] = useState<boolean>(false);
@@ -59,19 +60,20 @@ const UserSpace = () => {
                 <div className="user-space__list">
                     {contentType === ContentType.PHOTO ?
                         <>
-                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Vertical Rem' meta={undefined} location={{latitude: '26.41241', longitude: '52.212'}} tags={['beauty', 'sister']} data={require('@/images/remVertical.jpg')} />
-                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Ayanami Rey' meta={undefined} location={{latitude: '86.14241', longitude: '36.2'}} tags={['']} data={require('@/images/ai.jpg')} />
-                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Void Image' meta={undefined} location={{latitude: '58.411241', longitude: '40.262'}} tags={['']} data={require('@/images/void.png')} />
-                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Emiliya' meta={undefined} location={{latitude: '56.41241', longitude: '70.2142'}} tags={['']} data={require("@/images/emiliya.jpg")} />
+                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Vertical Rem' meta={undefined} location={{ latitude: '26.41241', longitude: '52.212' }} tags={['beauty', 'sister', 'anime']} data={require('@/images/remVertical.jpg')} />
+                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Ayanami Rey' meta={undefined} location={{ latitude: '86.14241', longitude: '36.2' }} tags={['anime', 'blue haired']} data={require('@/images/ai.jpg')} />
+                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Void Image' meta={undefined} location={{ latitude: '58.411241', longitude: '40.262' }} tags={['anime', 'no image']} data={require('@/images/void.png')} />
+                            <ImageEditCard openViewer={useOpenViewer} setData={useImageData} openEditor={useNewData} title='Emiliya' meta={undefined} location={{ latitude: '56.41241', longitude: '70.2142' }} tags={['anime', 're:Zero']} data={require("@/images/emiliya.jpg")} />
                         </>
                         :
                         contentType === ContentType.VIDEO ?
                             <>
-                                <VideoEditCard openViewer={useOpenViewer} setData={useVideoData} openEditor={useNewData} title='AK' tags={['home, pc']} data={require("@/videos/am.mp4")} />
+                                <VideoEditCard openViewer={useOpenViewer} setData={useVideoData} openEditor={useNewData} title='AK' tags={['home', 'pc']} data={require("@/videos/am.mp4")} />
                                 <VideoEditCard openViewer={useOpenViewer} setData={useVideoData} openEditor={useNewData} title='Yao Miko' tags={['pinterest']} data={require("@/videos/yao.mp4")} />
                             </>
                             :
                             <>
+                                <Card title={'main'} tags={['main', 'anime']} link='anime' src={require('@/images/emiliya.jpg')} />
                             </>
                     }
                 </div>

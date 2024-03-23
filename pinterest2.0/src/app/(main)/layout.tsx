@@ -27,7 +27,6 @@ export default function RootLayout({
                         <input placeholder="#(tag):(name)" type="text" className="header__search" name='search' />
                     </div>
                     <nav className="header__users-nav">
-                        <Link href='/users' className="header__link"  >Пользователи</Link>
                         <Link className="header__accout-auth" href='/auth/entrance'>
                             Вход
                         </Link>

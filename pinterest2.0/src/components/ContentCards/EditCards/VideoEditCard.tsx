@@ -18,7 +18,7 @@ const VideoEditCard = ({ data, title, tags, openEditor, setData, openViewer }: I
 
     return (
         <article className='data-card'>
-            <video height={256} ref={videoRef} src={data.default} preload='auto' loop muted/>
+            <video height={256} ref={videoRef} src={data.default} preload='auto' loop muted />
             <div className="data-card__data">
                 <div className="data-card__manager">
                     <button className="data-card__btn">
@@ -54,7 +54,10 @@ const VideoEditCard = ({ data, title, tags, openEditor, setData, openViewer }: I
                         }
                     </button>
                 </div>
-                <h4 className='data-card__title'>{title}</h4>
+                <div className="data-card__infa">
+                    {tags[0] !== '' && <span className='data-card__tags'>{...tags.map(tag => `#${tag} `)}</span>}
+                    <h4 className='data-card__title'>{title}</h4>
+                </div>
             </div>
         </article>
     )

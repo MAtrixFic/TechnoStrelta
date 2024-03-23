@@ -28,6 +28,7 @@
     min-width: 180px;
 }
 
+
 .header__link {
     color: $dark;
     font-size: 1.2rem;
@@ -94,7 +95,7 @@
     width: 300px;
     justify-self: end;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
 }
 
