@@ -14,6 +14,7 @@ import uuid
 from PIL import Image
 
 
+
 dotenv.load_dotenv()
 
 # print(os.getenv('PG_DATABASE'), os.getenv('PG_USERNAME'), os.getenv('PG_PASSWORD'), os.getenv('PG_PORT'))
@@ -117,6 +118,9 @@ def create_tables():
         curs.execute('ALTER TABLE Users ADD COLUMN '
                      'avatar_id INTEGER REFERENCES Medias(id);')
         conn.commit()
+    # avatar = "img.png" # Image.open('img.png')
+    # uid = add_file_to_server(avatar)
+    # add_user('yellowMonkey', 'password', 'bebra@gmail.com', uid)
     curs.close()
 
 
@@ -713,6 +717,17 @@ def get_album_members_db(album_id):
 def get_user_by_id(id):
     curs = conn.cursor()
     curs.execute(f'SELECT row_to_json(Users) FROM Users WHERE id = \'{id}\'')
+    resp = curs.fetchall()
+    curs.close()
+    if resp != []:
+        return resp[0][0]
+    else:
+        return False
+
+
+def get_media_by_id(id):
+    curs = conn.cursor()
+    curs.execute(f'SELECT row_to_json(Medias) FROM Medias WHERE id = \'{id}\'')
     resp = curs.fetchall()
     curs.close()
     if resp != []:

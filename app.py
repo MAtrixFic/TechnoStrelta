@@ -13,7 +13,9 @@ def auth_login():
     password = resp['password']
     token = check_entrance(username, password)
     if token:
-        return make_response({'token': token}, 200)
+        user = get_user_by_id(check_token(token)['id'])
+        user['token'] = token
+        return make_response(user, 200)
     else:
         return make_response({'reason': 'Неверный логин или пароль'}, 401)
 
@@ -27,8 +29,10 @@ def auth_register():
     avatar = request.files['avatar']
     uid = add_file_to_server(avatar)
     token = add_user(username, password, mail, uid)
+    user = get_user_by_id(check_token(token)['id'])
+    user['token'] = token
     if token:
-        return make_response({'token': token}, 200)
+        return make_response(user, 200)
     else:
         return make_response({'reason': 'Пользователь с таким username или email уже существует'}, 409)
 
@@ -152,7 +156,7 @@ def create_album():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/addUserToAlbum', methods=['PATCH'])
+@app.route('/api/media/addUserToAlbum', methods=['post'])
 def add_user_to_album():
     resp = dict(request.form)
     token = resp['token']
@@ -169,7 +173,7 @@ def add_user_to_album():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/deleteUserFromAlbum', methods=['PATCH'])
+@app.route('/api/media/deleteUserFromAlbum', methods=['post'])
 def delete_user_from_album():
     resp = dict(request.form)
     token = resp['token']
@@ -186,7 +190,7 @@ def delete_user_from_album():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/renameAlbum', methods=['PATCH'])
+@app.route('/api/media/renameAlbum', methods=['post'])
 def rename_album():
     resp = dict(request.form)
     token = resp['token']
@@ -221,7 +225,7 @@ def delete_album():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/updateMedia', methods=['PATCH'])
+@app.route('/api/media/updateMedia', methods=['post'])
 def update_media():
     resp = dict(request.form)
     token = resp['token']
@@ -243,7 +247,7 @@ def update_media():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/addTagToMedia', methods=['PATCH'])
+@app.route('/api/media/addTagToMedia', methods=['post'])
 def add_tag_to_media():
     resp = dict(request.form)
     token = resp['token']
@@ -260,7 +264,7 @@ def add_tag_to_media():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/deleteTagFromMedia')
+@app.route('/api/media/deleteTagFromMedia', methods=['POST'])
 def delete_tag_from_media():
     resp = dict(request.form)
     token = resp['token']
@@ -277,7 +281,7 @@ def delete_tag_from_media():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/deleteMedia', methods=['PATCH'])
+@app.route('/api/media/deleteMedia', methods=['post'])
 def delete_media():
     resp = dict(request.form)
     token = resp['token']
@@ -311,7 +315,7 @@ def delete_media():
 #     pass
 
 
-@app.route('/api/media/getTags')
+@app.route('/api/media/getTags', methods=['POST'])
 def get_tags():
     tags = get_tags_db()
     if tags is not False:
@@ -320,7 +324,7 @@ def get_tags():
         return make_response({'reason': 'Я хз лол, ошибка какая-то'}, 500)
 
 
-@app.route('/api/media/getPublicAlbums')
+@app.route('/api/media/getPublicAlbums', methods=['POST'])
 def get_public_albums():
     resp = dict(request.form)
     token = resp['token']
@@ -335,7 +339,7 @@ def get_public_albums():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/getUsersAlbums')
+@app.route('/api/media/getUsersAlbums', methods=['POST'])
 def get_users_albums():
     resp = dict(request.form)
     token = resp['token']
@@ -351,7 +355,7 @@ def get_users_albums():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/getPublicMedias')
+@app.route('/api/media/getPublicMedias', methods=['POST'])
 def get_public_medias():
     resp = dict(request.form)
     token = resp['token']
@@ -366,7 +370,7 @@ def get_public_medias():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/getUsersMedia')
+@app.route('/api/media/getUsersMedia', methods=['POST'])
 def get_users_media():
     resp = dict(request.form)
     token = resp['token']
@@ -382,7 +386,7 @@ def get_users_media():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/getAlbumsMedia')
+@app.route('/api/media/getAlbumsMedia', methods=['POST'])
 def get_albums_media():
     resp = dict(request.form)
     token = resp['token']
@@ -401,7 +405,7 @@ def get_albums_media():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/getAlbumMembers')
+@app.route('/api/media/getAlbumMembers', methods=['POST'])
 def get_album_members():
     resp = dict(request.form)
     token = resp['token']
@@ -420,11 +424,33 @@ def get_album_members():
         return make_response({'reason': 'Недействительный токен'}, 403)
 
 
-@app.route('/api/media/getUsers')
+@app.route('/api/media/getUsers', methods=['POST'])
 def get_users():
     users = get_users_db()
     if users is not False:
         return make_response(users, 200)
+    else:
+        return make_response({'reason': 'Я хз лол, ошибка какая-то'}, 500)
+
+
+@app.route('/api/media/getUser', methods=['POST'])
+def get_user():
+    resp = dict(request.form)
+    id =    resp['id']
+    user = get_user_by_id(id)
+    if user is not False:
+        return make_response(user, 200)
+    else:
+        return make_response({'reason': 'Я хз лол, ошибка какая-то'}, 500)
+
+
+@app.route('/api/media/getMedia', methods=['POST'])
+def getMedia():
+    resp = dict(request.form)
+    id = resp['id']
+    media = get_media_by_id(id)
+    if media is not False:
+        return make_response(media, 200)
     else:
         return make_response({'reason': 'Я хз лол, ошибка какая-то'}, 500)
 
