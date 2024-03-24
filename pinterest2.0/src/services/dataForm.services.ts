@@ -20,7 +20,11 @@ export const buttonOperations = {
         setLoadData(false)
     },
     resetData: function ({ inputs, resetLocalData, resetGlobalData }: ResetDataType) {
+        let i = 0
         for (let element of inputs.current) {
+            i += 1
+            if(i == 3)
+                break
             element.value = ''
         }
         resetLocalData(undefined);

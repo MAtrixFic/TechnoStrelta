@@ -1,10 +1,10 @@
-import React, { useState, useRef, useContext } from 'react'
+import React from 'react'
 import * as ExifReader from 'exifreader';
 import { type ILoadDataProps } from '@/types/newfileform.type';
 import '@/styles/newfile.scss'
 
 
-const LoadData = ({ width, uploadData, uploadMeta }: ILoadDataProps) => {
+const LoadData = ({ width, uploadMeta, dataInp }: ILoadDataProps) => {
     const ratio = 268 / 218; //отношение картинки "файл"
 
     function GetMetaDataForMetaAndLocation(file: File) {
@@ -16,23 +16,30 @@ const LoadData = ({ width, uploadData, uploadMeta }: ILoadDataProps) => {
                 latitude: data.GPSLatitude ? data.GPSLatitude.description : '',
                 longitude: data.GPSLongitude ? data.GPSLongitude.description : ''
             }
-            uploadMeta(metaData.date, metaData.latitude, metaData.longitude);
+            const reader = new FileReader();
+            reader.onloadend = function () {
+                const base64 = reader.result;
+                uploadMeta({ data: base64 as string, title: dataInp[0], tags: dataInp[1].split(' '), meta: { city: '', date: CheckMeta(metaData, 'date') }, location: { latitude: CheckMeta(metaData, 'latitude'), longitude: CheckMeta(metaData, 'longitude') } })
+            };
+
+            reader.readAsDataURL(file);
         })
+
+    }
+
+    function CheckMeta(meta: any, key: string) {
+        return meta[key] === '' ? undefined : meta[key]
+    }
+
+
+    function GetUnixTime(date: string) {
 
     }
 
     function ConverImageToBase64(event: React.ChangeEvent<HTMLInputElement>) {
         if (event.currentTarget.files !== null) {
             const file = event.currentTarget.files[0];
-            console.log(file);
-            const reader = new FileReader();
             GetMetaDataForMetaAndLocation(file);
-            reader.onloadend = function () {
-                const base64 = reader.result;
-                uploadData(base64 as string)
-            };
-
-            reader.readAsDataURL(file);
         }
     }
 
@@ -46,5 +53,4 @@ const LoadData = ({ width, uploadData, uploadMeta }: ILoadDataProps) => {
         </label>
     )
 }
-
 export default LoadData

@@ -99,6 +99,6 @@ export enum OperationTypes {
 
 export interface ILoadDataProps {
     width: number;
-    uploadData: (data: string) => void;
-    uploadMeta: (date: string, latitude: string, longitude: string) => void;
+    uploadMeta: (data: IImageProps) => void;
+    dataInp: string[];
 }
