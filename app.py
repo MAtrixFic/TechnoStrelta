@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 from db_reqs import *
 from json import loads
+from flask_cors import CORS
 
 
 @app.route('/api/auth/entrance', methods=['POST'])
@@ -429,6 +430,7 @@ def get_users():
 
 
 if __name__ == '__main__':
+    cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
     create_tables()
     # add_user('yellowMonkey', 'password', 'kek.mitroshin@ya.ru' )
     app.run(host=os.getenv('SERVER_HOST'), port=os.getenv('SERVER_PORT'))
