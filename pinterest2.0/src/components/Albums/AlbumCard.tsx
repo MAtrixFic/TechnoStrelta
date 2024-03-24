@@ -5,12 +5,11 @@ import '@/styles/card.scss'
 import Image from 'next/image';
 import Link from 'next/link';
 
-const AlbumCard = ({ title, src, link, tags }: IAlbumCardProps) => {
+const AlbumCard = ({ title, src, link }: IAlbumCardProps) => {
     return (
         <Link href={`/albums/${link}`} className={`card`}>
             <Image className='card__img' quality={10} loading='lazy' width={200 / (src.default.height / src.default.width)} height={200} src={src.default.src} alt="Картинка" />
             <div className="card__infa">
-                {(tags[0] !== '') && <span className='card__tags'>{...tags.map(tag => `#${tag} `)}</span>}
                 <h3 className='card__title'>{title}</h3>
             </div>
         </Link>

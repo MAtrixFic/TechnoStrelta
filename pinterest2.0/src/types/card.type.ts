@@ -2,7 +2,6 @@ export interface IAlbumCardProps {
     src: any,
     title: string
     link: string
-    tags: string[]
 }
 
 export interface IVideoCardProps {

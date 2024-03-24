@@ -86,7 +86,7 @@ export async function FromBase64ToFile(base64: string, name: string) {
     const data = await fetch(base64)
         .then(res => res.blob())
         .then(blob => {
-            const file = new File([blob], name, { type: "image/jpeg" })
+            const file = new File([blob], name, { type: "image/png" })
             return file
         })
     return data;

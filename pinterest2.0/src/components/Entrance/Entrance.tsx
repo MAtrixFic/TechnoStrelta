@@ -1,23 +1,33 @@
 'use client'
 import React, { useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import '@/styles/auth.scss'
 import Link from 'next/link'
 import { authSchema } from '@/types/input.types'
+import AuthEnter from '../ServerComponents/AuthEnter'
+import Cookie from '@/components/ServerComponents/Cookie'
 
 const Entrance = () => {
     let inputRefs = useRef<HTMLInputElement[]>(new Array<HTMLInputElement>(2))
-
-    function CheckAuth(){
+    const router = useRouter()
+    async function CheckAuth(){
         let data = {
             login: inputRefs.current[0].value,
             password: inputRefs.current[1].value,
         }
         let result = authSchema.safeParse(data)
-        let errorText: string = ''
         if (result.success) {
-            console.log(result.data)
+            try{
+                const resData = await AuthEnter(data.login, data.password)
+                Cookie(resData.token)
+                router.push('/account')
+            }
+            catch(ex){
+                alert(ex)
+            }
         }
         else {
+            let errorText: string = ''
             for (let i of result.error.errors) {
                 errorText += `${i.path} ${i.message}\n`
             }

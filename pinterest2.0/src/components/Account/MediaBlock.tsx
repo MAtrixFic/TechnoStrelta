@@ -1,6 +1,5 @@
 'use client'
-import React, { useState, useRef, useEffect } from 'react'
-import MediaCell from './Album/MediaCell'
+import React, { useState, useEffect } from 'react'
 import NewFileForm from '../AddNewFileForm/NewFileForm'
 import { IVideoProps, IImageProps, OperationTypes, IMediaBlockProps, newFileRequest } from '@/types/newfileform.type'
 import ImageEditCard from '../ContentCards/EditCards/ImageEditCard'
@@ -40,8 +39,8 @@ const MediaBlock = ({ title }: IMediaBlockProps) => {
                 </button>
             </div>
             <div className="album-manager__media-list">
-                <ImageEditCard setNewFileRequest={useNewFileReq} openViewer={useOpenViewer} setData={useImageData} meta={undefined} location={undefined} data={require('@/images/ai.jpg')} title={'Ayanami Rey'} tags={['anime', 'evangelion']} openEditor={useOpenEditor} />
-                <VideoEditCard setNewFileRequest={useNewFileReq} openViewer={useOpenViewer} data={require('@/videos/yao.mp4')} setData={useVideoData} title={'Yao Miko'} tags={['geishinInfarct']} openEditor={useOpenEditor} />
+                <ImageEditCard canEdit={false} id={0} setNewFileRequest={useNewFileReq} openViewer={useOpenViewer} setData={useImageData} meta={undefined} location={undefined} data={require('@/images/ai.jpg')} title={'Ayanami Rey'} tags={['anime', 'evangelion']} openEditor={useOpenEditor} />
+                <VideoEditCard canEdit id={0} setNewFileRequest={useNewFileReq} openViewer={useOpenViewer} data={require('@/videos/yao.mp4')} setData={useVideoData} title={'Yao Miko'} tags={['geishinInfarct']} openEditor={useOpenEditor} />
             </div>
         </article>
     )

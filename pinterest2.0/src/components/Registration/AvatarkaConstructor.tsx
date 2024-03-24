@@ -3,6 +3,7 @@ import ImageEditor from '../ImageEditor/ImageEditor'
 import LoadData from '../AddNewFileForm/LoadData'
 import '@/styles/avatarkaconstruktor.scss'
 import Image from 'next/image'
+import { ILoadDataProps } from '@/types/newfileform.type'
 
 interface IAvatarkaConstructor {
     setAvatarka(data: string | undefined): void;
@@ -28,7 +29,7 @@ const AvatarkaConstructor = ({ setAvatarka, setLoadDate, avatarka }: IAvatarkaCo
 
     return (
         <div className="avatarka-constructor">
-            {!prepAvatarka && <LoadData width={200} uploadData={usePrepAvatarka} />}
+            {!prepAvatarka && <LoadData width={200} uploadMeta={undefined} uploadImage={usePrepAvatarka} dataInp={['']} />}
             {prepAvatarka && <ImageEditor aspect={1} width={600} image={prepAvatarka} setData={setAvatarka} setLoadData={setLoadDate} />}
             <div className="avatarka-constructor__btns">
                 <button disabled={CheckActiveReset()} className='avatarka-constructor__btn' onClick={ResetAvatrka}>

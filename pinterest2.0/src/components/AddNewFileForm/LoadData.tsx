@@ -4,7 +4,7 @@ import { type ILoadDataProps } from '@/types/newfileform.type';
 import '@/styles/newfile.scss'
 
 
-const LoadData = ({ width, uploadMeta, dataInp }: ILoadDataProps) => {
+const LoadData = ({ width, uploadMeta, dataInp, uploadImage }: ILoadDataProps) => {
     const ratio = 268 / 218; //отношение картинки "файл"
 
     function GetMetaDataForMetaAndLocation(file: File) {
@@ -19,7 +19,8 @@ const LoadData = ({ width, uploadMeta, dataInp }: ILoadDataProps) => {
             const reader = new FileReader();
             reader.onloadend = function () {
                 const base64 = reader.result;
-                uploadMeta({ data: base64 as string, title: dataInp[0], tags: dataInp[1].split(' '), meta: { city: '', date: CheckMeta(metaData, 'date') }, location: { latitude: CheckMeta(metaData, 'latitude'), longitude: CheckMeta(metaData, 'longitude') } })
+                uploadMeta !== undefined ? uploadMeta({ data: base64 as string, title: dataInp[0], tags: dataInp[1].split(' '), meta: { city: '', date: CheckMeta(metaData, 'date') }, location: { latitude: CheckMeta(metaData, 'latitude'), longitude: CheckMeta(metaData, 'longitude') } }) : ''
+                uploadImage !== undefined ? uploadImage(base64 as string) : ''
             };
 
             reader.readAsDataURL(file);

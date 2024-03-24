@@ -7,6 +7,8 @@ export interface IChangeData {
 }
 
 interface IDataCardProps {
+    id: number,
+    canEdit: boolean,
     data: any,
     title: string,
     tags: string[],
@@ -82,7 +84,7 @@ export interface IVideoFormProps extends IChangeData {
 
 
 export interface ILoadVideoProps {
-    width: number;
+    width: number,
     uploadFile: (file: File, urlFile: string) => void;
 }
 
@@ -99,6 +101,7 @@ export enum OperationTypes {
 
 export interface ILoadDataProps {
     width: number;
-    uploadMeta: (data: IImageProps) => void;
+    uploadMeta: ((data: IImageProps | string) => void) | undefined;
+    uploadImage: ((data: string) => void) | undefined;
     dataInp: string[];
 }

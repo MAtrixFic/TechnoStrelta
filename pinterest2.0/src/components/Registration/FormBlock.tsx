@@ -1,30 +1,44 @@
 'use client'
 import React, { useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+import SetJWT from '../ServerComponents/Cookie'
 import Link from 'next/link'
-
 import voidImage from '@/images/void.png'
-
+import { FromBase64ToFile } from '@/types/imageeditor.type'
 import ImageButton from '@/components/Registration/ImageButton'
 import AvatarkaConstructor from './AvatarkaConstructor'
 import { regSchema } from '@/types/input.types'
+import AuthReg from '../ServerComponents/AuthReg'
 
 function FormBlock() {
     const [avatarka, useAvatarka] = useState<string | undefined>(undefined)
     const [loadData, useLoadData] = useState<boolean>(false)
     const inputRefs = useRef<HTMLInputElement[]>(new Array<HTMLInputElement>(3))
+    const router = useRouter()
 
-    function CheckReg() {
+    async function CheckReg() {
         let data = {
             login: inputRefs.current[0].value,
             email: inputRefs.current[1].value,
             password: inputRefs.current[2].value
         }
         let result = regSchema.safeParse(data)
-        let errorText: string = ''
         if (result.success) {
-            console.log(result.data)
+            let sentAvatarka = avatarka !== undefined ? avatarka : voidImage.src;
+            let getData;
+            try {
+                getData = await AuthReg(
+                    data.login, data.email, data.password, await FromBase64ToFile(sentAvatarka, 'test.png'))
+                SetJWT(getData.token)
+                router.push('/account')
+            }
+            catch (ex) {
+                alert(ex)
+            }
+
         }
         else {
+            let errorText = ''
             for (let i of result.error.errors) {
                 errorText += `${i.path} ${i.message}\n`
             }
