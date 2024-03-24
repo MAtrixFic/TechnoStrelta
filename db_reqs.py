@@ -18,7 +18,7 @@ dotenv.load_dotenv()
 
 # print(os.getenv('PG_DATABASE'), os.getenv('PG_USERNAME'), os.getenv('PG_PASSWORD'), os.getenv('PG_PORT'))
 
-# if os.getenv('huynya'):
+# if os.getenv('HUYNYA'):
 #     pg_host = 'localhost'
 # else:
 #     pg_host = 'postgres'
