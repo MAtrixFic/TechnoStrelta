@@ -1,0 +1,125 @@
+@import 'empty';
+
+.main__account {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(300px, 340px) 1fr;
+    justify-items: center;
+    gap: 2rem;
+    padding: 3rem 10rem;
+}
+
+.user-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.user-data__ava {
+    border: 4px solid white;
+    border-radius: 50%;
+    -webkit-box-shadow: 0px 2px 9px 0px rgba(177, 192, 207, 0.4);
+    -moz-box-shadow: 0px 2px 9px 0px rgba(177, 192, 207, 0.4);
+    box-shadow: 0px 2px 9px 0px rgba(177, 192, 207, 0.4);
+}
+
+.user-data__nick {
+    font-size: 3rem;
+    color: $dark;
+    font-weight: 600;
+}
+
+.user-space {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    flex-direction: column;
+}
+
+.user-space__panel {
+    background-color: white;
+    border-radius: 100px;
+    min-height: 80px;
+    max-width: 600px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4rem;
+}
+
+.user-space__link {
+    font-size: 1.8rem;
+    color: $lightGrey;
+    font-weight: 550;
+    transition-duration: 0.2s;
+    background-color: transparent;
+
+    &.album {
+        font-size: 2rem;
+    }
+
+    &.active {
+        color: $lightBlue;
+    }
+
+    &:hover {
+        color: $lightBlue;
+    }
+}
+
+.user-space__data{
+    width: 100%;
+    display: grid;
+    grid-template-rows: minmax(60px, 80px) 1fr;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.user-space__add-block{
+    min-width: 80px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+}
+
+.user-space__list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+
+
+.user-space__create {
+    min-width: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid $lightGrey;
+    border-radius: 15px;
+    background-color: transparent;
+    transition-duration: 0.2s;
+
+    svg {
+        height: 25px;
+        width: 25px;
+        transition-duration: inherit;
+    }
+
+    &:hover {
+        background-color: $lightBlue;
+        transform: scale(1.05);
+        border-color: $lightBlue;
+        -webkit-box-shadow: 0px 2px 9px 0px rgba(0, 128, 255, 0.4);
+        -moz-box-shadow: 0px 2px 9px 0px rgba(0, 128, 255, 0.4);
+        box-shadow: 0px 2px 9px 0px rgba(0, 128, 255, 0.4);
+
+        svg {
+            fill: white;
+        }
+    }
+}
