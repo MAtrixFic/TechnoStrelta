@@ -120,10 +120,16 @@ def create_tables():
 
 
 def get_users_db():
-    curs = conn.cursor()
-    curs.execute('SELECT row_to_json(Users) FROM Users')
-    resp = curs.fetchall()
-    pass
+    try:
+        curs = conn.cursor()
+        curs.execute('SELECT row_to_json(Users) FROM Users')
+        resp = curs.fetchall()
+        op = []
+        for i in resp:
+            op.append(i[0])
+        return op
+    except:
+        return False
 
 
 def get_user(username):
@@ -614,4 +620,101 @@ def add_video_to_album(file, tags, title, username_id, album_id):
         curs.close()
         return True
     except:
+        return False
+
+
+def get_albums_db(user1_id, user2_id=None):
+    try:
+        op = []
+        if user2_id is None:
+            curs = conn.cursor()
+            curs.execute(f'SELECT id FROM albums')
+            resp = curs.fetchall()
+            for i in resp:
+                if check_access_album(user1_id, i[0]):
+                    curs.execute(f'SELECT row_to_json(albums) FROM albums WHERE id = {i[0]}')
+                    resp2 = curs.fetchall()[0]
+                    op.append(resp2)
+        else:
+            curs = conn.cursor()
+            curs.execute(f'SELECT album_id FROM galleryalbums WHERE gallery_id = (SELECT gallery_id '
+                         f'FROM users WHERE id = {user2_id})')
+            resp = curs.fetchall()
+            for i in resp:
+                if check_access_album(user1_id, i[0]):
+                    curs.execute(f'SELECT row_to_json(albums) FROM albums WHERE id = {i[0]}')
+                    resp2 = curs.fetchall()[0]
+                    op.append(resp2)
+        curs.close()
+        return op
+    except:
+        return False
+
+
+def get_medias_db(user1_id, user2_id=None):
+    try:
+        op = []
+        curs = conn.cursor()
+        if user2_id is None:
+            curs.execute(f'SELECT id FROM medias')
+            resp = curs.fetchall()
+            for i in resp:
+                if check_access_media(i[0], user1_id):
+                    curs.execute(f'SELECT row_to_json(medias) FROM medias WHERE id = {i[0]}')
+                    resp2 = curs.fetchall()
+                    op.append(resp2[0][0])
+        else:
+            curs.execute(f'SELECT id FROM medias WHERE id IN (SELECT media_id FROM gallerymedias '
+                         f'WHERE gallery_id = (SELECT gallery_id FROM users WHERE id = {user2_id}))')
+            resp = curs.fetchall()
+            for i in resp:
+                curs.execute(f'SELECT row_to_json(medias) FROM medias WHERE id = {i[0]}')
+                resp2 = curs.fetchall()
+                op.append(resp2[0][0])
+        curs.close()
+        return op
+    except:
+        return False
+
+
+def get_albums_media_db(album_id):
+    try:
+        curs = conn.cursor()
+        curs.execute(f'SELECT id FROM albummedias WHERE album_id = {album_id}')
+        resp = curs.fetchall()
+        op = []
+        for i in resp:
+            curs.execute(f'SELECT row_to_json(medias) FROM medias WHERE id = {i[0]}')
+            resp2 = curs.fetchall()
+            op.append(resp2[0][0])
+        curs.close()
+        return op
+    except:
+        return False
+
+
+def get_album_members_db(album_id):
+    try:
+        curs = conn.cursor()
+        curs.execute(f'SELECT gallery_id FROM galleryalbums WHERE album_id = {album_id}')
+        resp = curs.fetchall()
+        op = []
+        for i in resp:
+            curs.execute(f'SELECT row_to_json(users) FROM users WHERE gallery_id = {i[0]}')
+            resp2 = curs.fetchall()
+            op.append(resp2[0][0])
+        curs.close()
+        return op
+    except:
+        return False
+
+
+def get_user_by_id(id):
+    curs = conn.cursor()
+    curs.execute(f'SELECT row_to_json(Users) FROM Users WHERE id = \'{id}\'')
+    resp = curs.fetchall()
+    curs.close()
+    if resp != []:
+        return resp[0][0]
+    else:
         return False

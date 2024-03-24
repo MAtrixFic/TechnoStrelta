@@ -93,7 +93,7 @@ def add_media_photo():
             else:
                 return make_response({'reason': "У пользователя нет доступа к данному альбому"}, 403)
         else:
-            gallery_id = get_user(username_id)['gallery_id']
+            gallery_id = get_user_by_id(username_id)['gallery_id']
             if check_access_gallery(username_id, gallery_id):
                 add_media_to_gallery(uid, tags, metadata, coords, title, username_id, gallery_id)
             else:
@@ -122,7 +122,7 @@ def add_media_video():
             else:
                 return make_response({'reason': "У пользователя нет доступа к данному альбому"}, 403)
         else:
-            gallery_id = get_user(username_id)['gallery_id']
+            gallery_id = get_user_by_id(username_id)['gallery_id']
             if check_access_gallery(username_id, gallery_id):
                 add_video_to_gallery(uid, tags, title, username_id, gallery_id)
             else:
@@ -319,7 +319,116 @@ def get_tags():
         return make_response({'reason': 'Я хз лол, ошибка какая-то'}, 500)
 
 
+@app.route('/api/media/getPublicAlbums')
+def get_public_albums():
+    resp = dict(request.form)
+    token = resp['token']
+    decoded_token = check_token(token)
+    if decoded_token:
+        albums = get_albums_db(decoded_token['id'])
+        if albums is not False:
+            return make_response(albums, 200)
+        else:
+            return make_response({'reason': 'Я хз лол, ошибка какая-то'}, 500)
+    else:
+        return make_response({'reason': 'Недействительный токен'}, 403)
+
+
+@app.route('/api/media/getUsersAlbums')
+def get_users_albums():
+    resp = dict(request.form)
+    token = resp['token']
+    decoded_token = check_token(token)
+    if decoded_token:
+        user_id = resp['user_id']
+        albums = get_albums_db(decoded_token['id'], user_id)
+        if albums is not False:
+            return make_response(albums, 200)
+        else:
+            return make_response({'reason': 'Я хз лол, ошибка какая-то'}, 500)
+    else:
+        return make_response({'reason': 'Недействительный токен'}, 403)
+
+
+@app.route('/api/media/getPublicMedias')
+def get_public_medias():
+    resp = dict(request.form)
+    token = resp['token']
+    decoded_token = check_token(token)
+    if decoded_token:
+        medias = get_medias_db(decoded_token['id'])
+        if medias is not False:
+            return make_response(medias, 200)
+        else:
+            return make_response({'reason': 'Я хз лол, ошибка какая-то'}, 500)
+    else:
+        return make_response({'reason': 'Недействительный токен'}, 403)
+
+
+@app.route('/api/media/getUsersMedia')
+def get_users_media():
+    resp = dict(request.form)
+    token = resp['token']
+    decoded_token = check_token(token)
+    if decoded_token:
+        user_id = resp['user_id']
+        medias = get_medias_db(decoded_token['id'], user_id)
+        if medias is not False:
+            return make_response(medias, 200)
+        else:
+            return make_response({'reason': 'Я хз лол, ошибка какая-то'}, 500)
+    else:
+        return make_response({'reason': 'Недействительный токен'}, 403)
+
+
+@app.route('/api/media/getAlbumsMedia')
+def get_albums_media():
+    resp = dict(request.form)
+    token = resp['token']
+    decoded_token = check_token(token)
+    if decoded_token:
+        album_id = resp['album_id']
+        if check_access_album(decoded_token['id'], album_id):
+            medias = get_albums_media_db(album_id)
+            if medias is not False:
+                return make_response(medias, 200)
+            else:
+                return make_response({'reason': 'Я хз лол, ошибка какая-то'}, 500)
+        else:
+            return make_response({'reason': 'У пользователя нет доступа к альбому'}, 403)
+    else:
+        return make_response({'reason': 'Недействительный токен'}, 403)
+
+
+@app.route('/api/media/getAlbumMembers')
+def get_album_members():
+    resp = dict(request.form)
+    token = resp['token']
+    decoded_token = check_token(token)
+    if decoded_token:
+        album_id = resp['album_id']
+        if check_access_album(decoded_token['id'], album_id):
+            members = get_album_members_db(album_id)
+            if members is not False:
+                return make_response(members, 200)
+            else:
+                return make_response({'reason': 'Я хз лол, ошибка какая-то'}, 500)
+        else:
+            return make_response({'reason': 'У пользователя нет доступа к альбому'}, 403)
+    else:
+        return make_response({'reason': 'Недействительный токен'}, 403)
+
+
+@app.route('/api/media/getUsers')
+def get_users():
+    users = get_users_db()
+    if users is not False:
+        return make_response(users, 200)
+    else:
+        return make_response({'reason': 'Я хз лол, ошибка какая-то'}, 500)
+
+
 if __name__ == '__main__':
     create_tables()
-    add_user('yellowMonkey', 'password', 'UAE', 'kek.mitroshin@ya.ru', )
+    # add_user('yellowMonkey', 'password', 'kek.mitroshin@ya.ru' )
     app.run(host=os.getenv('SERVER_HOST'), port=os.getenv('SERVER_PORT'))
