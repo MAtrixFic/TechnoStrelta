@@ -22,7 +22,7 @@ dotenv.load_dotenv()
 #     pg_host = 'localhost'
 # else:
 #     pg_host = 'postgres'
-pg_host = os.getenv('PG_HOST')
+pg_host = 'localhost' # os.getenv('PG_HOST')
 conn = psycopg2.connect(database=os.getenv('PG_DATABASE'), user=os.getenv('PG_USERNAME'),
                         password=os.getenv('PG_PASSWORD'), host=pg_host,
                         port=os.getenv('PG_PORT'))
