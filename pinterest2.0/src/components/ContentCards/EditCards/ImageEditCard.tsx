@@ -6,7 +6,7 @@ import useDownloader from 'react-use-downloader'
 import { ContentType } from '@/types/card.type'
 
 
-const ImageEditCard = ({ setData, openEditor, openViewer, data, title, tags, meta, location, setNewFileRequest, canEdit, id }: IPhotoCardProps) => {
+const ImageEditCard = ({ setData, openEditor, openViewer, data, title, tags, meta, location, setNewFileRequest, canEdit, id, userData, setUserData }: IPhotoCardProps) => {
     console.log(typeof data, data)
     const { download } = useDownloader()
 
@@ -16,12 +16,12 @@ const ImageEditCard = ({ setData, openEditor, openViewer, data, title, tags, met
 
     return (
         <article className='data-card'>
-            <Image quality={1} height={256} width={256 / (data.default.height / data.default.width)} loading='lazy' placeholder='blur' src={data} alt="photo" />
+            <Image quality={1} height={256} width={data.default !== undefined ? 256 / (data.default.height / data.default.width) : 256} src={data} alt="photo" />
             <div className="data-card__data">
                 <div className="data-card__manager">
                     {canEdit &&
                         <>
-                            <button className="data-card__btn">
+                            <button className="data-card__btn" onClick={() => setUserData((userData as any[]).filter((_, i) => i !== id))}>
                                 <svg viewBox="0 0 30 29" fill="white" xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" clip-rule="evenodd" d="M14.1424 8.22708L20.0634 2.30604C20.4539 1.91552 21.0871 1.91552 21.4776 2.30604L26.8769 7.70528C27.2674 8.09581 27.2674 8.72898 26.8769 9.1195L20.9558 15.0405L14.1424 8.22708ZM12.9619 9.40751L2.53594 19.8335C2.14542 20.224 2.14542 20.8572 2.53595 21.2477L7.93519 26.647C8.32571 27.0375 8.95888 27.0375 9.3494 26.647L19.7754 16.221L12.9619 9.40751ZM1.12173 22.6619C-0.049841 21.4904 -0.0498418 19.5909 1.12173 18.4193L18.6492 0.891827C19.8208 -0.279746 21.7203 -0.279744 22.8918 0.891829L28.2911 6.29107C29.4626 7.46264 29.4626 9.36214 28.2911 10.5337L10.7636 28.0612C9.59204 29.2327 7.69255 29.2327 6.52098 28.0612L1.12173 22.6619Z" />
                                 </svg>

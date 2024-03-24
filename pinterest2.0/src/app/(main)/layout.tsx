@@ -1,6 +1,8 @@
 import { Inter } from "next/font/google";
 import Link from "next/link";
 
+import Navi from "@/components/Header/navi";
+
 const inter = Inter({ subsets: ["latin"] });
 import '@/styles/header.scss'
 
@@ -17,7 +19,7 @@ export default function RootLayout({
                         <h1 className="header__logo">P 2.0</h1>
                         <nav className="header__albums-nav">
                             <Link href='/albums' className="header__link" >Альбомы</Link>
-                            <Link href='/account' className="header__link"  >Создать</Link>
+                            <Link href='/account' className="header__link">Создать</Link>
                         </nav>
                     </div>
                     <div className="header__search-block">
@@ -27,9 +29,7 @@ export default function RootLayout({
                         <input placeholder="#(tag):(name)" type="text" className="header__search" name='search' />
                     </div>
                     <nav className="header__users-nav">
-                        <Link className="header__accout-auth" href='/auth/entrance'>
-                            Вход
-                        </Link>
+                        <Navi />
                     </nav>
                 </header>
                 <main className="main">

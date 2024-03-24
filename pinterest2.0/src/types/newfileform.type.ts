@@ -24,6 +24,8 @@ export interface IFormButtonProps {
 }
 
 export interface IPhotoCardProps extends IDataCardProps {
+    setUserData: (data: any) => void;
+    userData: any[];
     meta: IMetaData | undefined,
     location: ILocation | undefined
 

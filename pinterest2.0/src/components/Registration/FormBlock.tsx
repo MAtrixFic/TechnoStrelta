@@ -30,7 +30,9 @@ function FormBlock() {
                 getData = await AuthReg(
                     data.login, data.email, data.password, await FromBase64ToFile(sentAvatarka, 'test.png'))
                 SetJWT(getData.token)
-                router.push('/account')
+                localStorage.setItem('auth', 'yes')
+                localStorage.setItem('user_id', String(getData.id))
+                router.push(`/account/${getData.id}`)
             }
             catch (ex) {
                 alert(ex)

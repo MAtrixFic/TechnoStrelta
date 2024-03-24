@@ -9,6 +9,8 @@ import FormButton from './FormButton'
 
 import { IImageFormProps } from '@/types/newfileform.type'
 import { buttonOperations } from '@/services/dataForm.services'
+import { imgContext } from '../Users/UserSpace'
+import { useContext } from 'react'
 
 const ImageForm = ({ setLoadData, setData, data }: IImageFormProps) => {
     const [showEditor, useShowEditor] = useState<boolean>(false)
@@ -20,7 +22,7 @@ const ImageForm = ({ setLoadData, setData, data }: IImageFormProps) => {
             return undefined
         }
     });
-
+    const img = useContext(imgContext)
     let inputsRef = useRef<HTMLInputElement[]>(new Array(4).fill(null));
 
 
@@ -112,7 +114,7 @@ const ImageForm = ({ setLoadData, setData, data }: IImageFormProps) => {
                 <div className="new-data__btns">
                     <FormButton title='Отмена' operation={() => buttonOperations.cancel({ resetData: buttonOperations.resetData, setLoadData: setLoadData, data: { inputs: inputsRef, resetLocalData: usePrepImage, resetGlobalData: setData } })} />
                     <FormButton title='Сбросить' operation={() => buttonOperations.resetData({ inputs: inputsRef, resetLocalData: usePrepImage, resetGlobalData: setData })} />
-                    <FormButton title='Отправить' operation={() => ''} />
+                    <FormButton title='Отправить' operation={() => {img?.setData([{title:data?.title, location: data?.location, tags: data?.tags, data: prepImage } ,...img.data]); setLoadData(true)}} />
                 </div>
             </div>}
         </>

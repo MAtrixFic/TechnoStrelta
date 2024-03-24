@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const Page: NextPage = () => {
     return (
         <div className='main__albums'>
-            {Array(13).fill(0).map((_, i) => <Card key={i} title='Название альбомя' link='anime' src={require('@/images/emiliya.jpg')} />)}
+            {Array(13).fill(0).map((_, i) => <Card key={i} title='Название альбомя' link='anime' src={require('@/images/void.png')} />)}
         </div>
     )
 }

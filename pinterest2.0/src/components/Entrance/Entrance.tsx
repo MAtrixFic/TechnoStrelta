@@ -19,8 +19,11 @@ const Entrance = () => {
         if (result.success) {
             try{
                 const resData = await AuthEnter(data.login, data.password)
+                console.log(resData)
                 Cookie(resData.token)
-                router.push('/account')
+                localStorage.setItem('auth', 'yes')
+                localStorage.setItem('user_id', String(resData.id))
+                router.push(`/account/${resData.id}`)
             }
             catch(ex){
                 alert(ex)

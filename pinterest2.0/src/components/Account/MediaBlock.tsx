@@ -26,6 +26,13 @@ const MediaBlock = ({ title }: IMediaBlockProps) => {
         console.log(newFileReq)
     }, [newFileReq])
 
+    useEffect(() => {
+        if (!openViewer) {
+            useVideoData(undefined)
+            useImageData(undefined)
+        }
+    }, [openViewer])
+
     return (
         <article className="album-manager__media-block">
             {openViewer && <ContentViewer imageData={imageData} videoData={videoData} setOpenViewer={useOpenViewer} />}
