@@ -633,7 +633,7 @@ def get_albums_db(user1_id, user2_id=None):
             for i in resp:
                 if check_access_album(user1_id, i[0]):
                     curs.execute(f'SELECT row_to_json(albums) FROM albums WHERE id = {i[0]}')
-                    resp2 = curs.fetchall()[0]
+                    resp2 = curs.fetchall()[0][0]
                     op.append(resp2)
         else:
             curs = conn.cursor()
@@ -643,7 +643,7 @@ def get_albums_db(user1_id, user2_id=None):
             for i in resp:
                 if check_access_album(user1_id, i[0]):
                     curs.execute(f'SELECT row_to_json(albums) FROM albums WHERE id = {i[0]}')
-                    resp2 = curs.fetchall()[0]
+                    resp2 = curs.fetchall()[0][0]
                     op.append(resp2)
         curs.close()
         return op
